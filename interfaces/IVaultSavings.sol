@@ -28,9 +28,4 @@ contract IVaultSavings {
     function isBaseTokenForVault(address _protocol, _token) public view returns(bool);
     function isSupportTokenForVault(address _protocol, _token) public view returns(bool);
 
-
-
-
-
-
 }
