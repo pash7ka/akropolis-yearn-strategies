@@ -16,6 +16,8 @@ contract StubStrategy is BaseStrategy {
     using Address for address;
     using SafeMath for uint256;
 
+    address token_stub;
+
     constructor(address _vault) public BaseStrategy(_vault) {
         // minReportDelay = 6300;
         // profitFactor = 100;
@@ -28,7 +30,9 @@ contract StubStrategy is BaseStrategy {
         return "StubCurveStrategy";
     }
 
+    //normaizedBalance
     function estimatedTotalAssets() public override view returns (uint256) {
+        //want - token registered in strategy, comes from the Vault
         return want.balanceOf(address(this));
     }
 

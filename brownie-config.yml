@@ -1,7 +1,18 @@
 # use Ganache's forked mainnet mode as the default network
 # NOTE: You don't *have* to do this, but it is often helpful for testing
 networks:
-  default: mainnet-fork
+  default: development
+  development:
+    gas_limit: max
+    gas_buffer: 1
+    gas_price: 0
+    reverting_tx_gas_limit: max
+    default_contract_owner: true
+    cmd_settings:
+      port: 8545
+      gas_limit: 6721975
+      accounts: 10
+
 
 # automatically fetch contract sources from Etherscan
 autofetch_sources: True
@@ -18,6 +29,8 @@ compiler:
     remappings:
       - "@yearnvaults=iearn-finance/yearn-vaults@0.2.1"
       - "@openzeppelinV3=OpenZeppelin/openzeppelin-contracts@3.1.0"
+  vyper:
+    version: null
 
 reports:
   exclude_contracts:
