@@ -20,8 +20,6 @@ contract VaultSavings is IVaultSavings, Ownable {
     using Address for address;
     using SafeMath for uint256;
 
-
-
     struct VaultInfo {
         bool isActive,
         uint256 blockNumber
@@ -29,11 +27,9 @@ contract VaultSavings is IVaultSavings, Ownable {
 
     address[] internal registeredVaults;
     mapping(address => VaultInfo) vaults;
-    mapping(address => address) poolTokenToVault;
     mapping(address => VaultInfo) vaults;
 
     address registry;
-
 
     function initialize(address _registry) onlyOwner {
         registry = _registry;
@@ -41,12 +37,9 @@ contract VaultSavings is IVaultSavings, Ownable {
     
    
     function deposit(address _vault, _amount) external returns(uint256) nonReentrant {
-
-    }
-
-    function withdraw(address _vault, _amount) external returns(uint256) nonReentrant {
         //check vault
-        require(isVaultRegistered(_vault), "Vault is not Registered);
+        require(isVaultRegistered(_vault), "Vault is not Registered");
+
         ( , address baseToken, ,) = IYRegistry(registry).getVaultInfo(_vault);
      
         //transfer token if it is allowed to contract
@@ -62,6 +55,22 @@ contract VaultSavings is IVaultSavings, Ownable {
         ERC20(_vault).safeTransfer(msg.sender, ERC20(_vault).balanceOf(address(this)));
 
         emit  Deposit(_vault, msg.sender, _amount);
+    }
+
+    function withdraw(address _vault, _amount) external returns(uint256) nonReentrant {
+        require(isVaultRegistered(_vault), "Vault is not Registered");
+        //transfer LP Token if it is allowed to contract
+        ERC20(_vault).safeTransferFrom(msg.sender, address(this), _amount);
+
+        //burn tokens from vault
+        ERC20(_vault).withdraw(_amount);
+
+        ( , address baseToken, ,) = IYRegistry(registry).getVaultInfo(_vault);
+
+        //Transfer token to user
+        ERC20(baseToken).safeTransfer(msg.sender, ERC20(baseToken).balanceOf(address(this)));
+
+        emit Withdraw(_vault, msg.sender, _amount);
     }
 
     function registerVault(address _vault) external {

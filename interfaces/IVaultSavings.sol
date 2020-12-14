@@ -9,7 +9,7 @@ contract IVaultSavings {
 
     event Deposit(address indexed vault, address indexed user, uint256 nAmount);
     event WithdrawToken(address indexed vault, address indexed token, uint256 dnAmount);
-    event Withdraw(address indexed vault, address indexed user, uint256 nAmount, uint256 nFee);
+    event Withdraw(address indexed vault, address indexed user, uint256 nAmount);
 
     function deposit(address _vault, _amount) external returns(uint256);
 
