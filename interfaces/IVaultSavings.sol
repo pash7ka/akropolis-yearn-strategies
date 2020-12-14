@@ -1,8 +1,10 @@
+// SPDX-License-Identifier: AGPL V3.0
+
 pragma solidity ^0.6.12;
 
 
 //solhint-disable func-order
-contract IVaultSavings {
+interface IVaultSavings {
 
     event VaultRegistered(address indexed vault, address baseToken);
     event VaultDisabled(address indexed vault);
@@ -11,20 +13,20 @@ contract IVaultSavings {
     event WithdrawToken(address indexed vault, address indexed token, uint256 dnAmount);
     event Withdraw(address indexed vault, address indexed user, uint256 nAmount);
 
-    function deposit(address _vault, _amount) external returns(uint256);
+    function deposit(address _vault, uint256 _amount) external;
 
-    function withdraw(address _vaultvault, _amount) external returns(uint256);
+    function withdraw(address _vaultvault, uint256 _amount) external;
 
     function registerVault(address _vault) external;
 
-    function disableVault(_vault) external;
+    function disableVault(address _vault) external;
     
     //view functions
-    function isVaultRegistered(address _vault) public view returns(bool);
+    function isVaultRegistered(address _vault) external view returns(bool);
 
-    function supportedVaults() public view returns(address[] memory);
+    function supportedVaults() external view returns(address[] memory);
     
     //logic functions
-    function isBaseTokenForVault(address _vault, _token) public view returns(bool);
+    function isBaseTokenForVault(address _vault, address _token) external view returns(bool);
 
 }
