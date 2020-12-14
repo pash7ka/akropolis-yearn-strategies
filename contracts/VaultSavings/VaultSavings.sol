@@ -41,11 +41,27 @@ contract VaultSavings is IVaultSavings, Ownable {
     
    
     function deposit(address _vault, _amount) external returns(uint256) nonReentrant {
-        
+
     }
 
     function withdraw(address _vault, _amount) external returns(uint256) nonReentrant {
+        //check vault
+        require(isVaultRegistered(_vault), "Vault is not Registered);
+        ( , address baseToken, ,) = IYRegistry(registry).getVaultInfo(_vault);
+     
+        //transfer token if it is allowed to contract
+        ERC20(baseToken).safeTransferFrom(msg.sender, address(this), _amount);
 
+        //set allowence to vault
+        ERC20(baseToken).safeIncreaseAllowance(_vault, _amount);
+
+        //deposit token to vault
+        IVault(_vault).deposit(_amount);
+
+        //send new tokens to user
+        ERC20(_vault).safeTransfer(msg.sender, ERC20(_vault).balanceOf(address(this)));
+
+        emit  Deposit(_vault, msg.sender, _amount);
     }
 
     function registerVault(address _vault) external {
