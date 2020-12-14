@@ -5,10 +5,14 @@ import "@openzeppelinV3/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelinV3/contracts/token/ERC20/SafeERC20.sol";
 import "@openzeppelinV3/contracts/utils/Address.sol";
 import "@openzeppelinV3/contracts/math/SafeMath.sol";
+import "@openzeppelinV3/contracts/Access/Ownable.sol";
+import "@openzeppelinV3/contracts/utils/ReentrancyGuard.sol";
+
 import "../interfaces/IVault.sol";
 import "../interfaces/IVaultSavings.sol";
+import "../interfaces/IYRegistry.sol";
 
-contract VaultSavings is IVaultSavings {
+contract VaultSavings is IVaultSavings, Ownable {
 
     uint256 constant MAX_UINT256 = uint256(-1);
 
@@ -17,45 +21,75 @@ contract VaultSavings is IVaultSavings {
     using SafeMath for uint256;
 
 
+
+    struct VaultInfo {
+        bool isActive,
+        uint256 blockNumber
+    }
+
     address[] internal registeredVaults;
     mapping(address => VaultInfo) vaults;
     mapping(address => address) poolTokenToVault;
+    mapping(address => VaultInfo) vaults;
+
+    address registry;
 
 
-    event VaultRegistered(address vault, address baseToken);
-    event Deposit(address indexed vault, address indexed user, uint256 nAmount);
-    event WithdrawToken(address indexed vault, address indexed token, uint256 dnAmount);
-    event Withdraw(address indexed vault, address indexed user, uint256 nAmount, uint256 nFee);
-
-    function deposit(address _vault, _amount) external returns(uint256) {
-
-    }
-
-    function withdraw(address _vaultvault, _amount) external returns(uint256) {
-
-    }
-
-    function registerVault(address _vault, address _baseToken) external {
-        require(!isVaultRegistered(address(vault)), "Vault is already registered");
-        registeredVaults.push(_vault);
-        poolTokenToVault[_baseToken] = address(_vault);
-
-        emit VaultRegistered(_vault, _baseToken);
+    function initialize(address _registry) onlyOwner {
+        registry = _registry;
     }
     
+   
+    function deposit(address _vault, _amount) external returns(uint256) nonReentrant {
+        
+    }
+
+    function withdraw(address _vault, _amount) external returns(uint256) nonReentrant {
+
+    }
+
+    function registerVault(address _vault) external {
+        require(!isVaultRegistered(_vault), "Vault is already registered");
+
+        registeredVaults.push(_vault);
+
+        vaults[_vault] = VaultInfo({
+            isActive: true,
+            blockNumber: block.number
+        });
+
+        (, address baseToken, ,) = IYRegistry(registry).getVaultInfo(_vault);
+
+        emit VaultRegistered(_vault, baseToken);
+    }
+
+    function disableVault(_vault) {
+        require(isVaultRegistered(_vault), "Vault is not registered");
+        (, address baseToken, ,) = IYRegistry(_vault).getVaultInfo(_vault);
+        vaults[_vault] = VaultInfo({
+            isActive: false,
+            blockNumber: block.number
+        });
+
+       emit VaultDisabled(false);
+    }
+    
+
     //view functions
     function isVaultRegistered(address _vault) public view returns(bool) {
-
+        for (uint256 i = 0; i < registeredVaults.length; i++){
+            if (registeredVaults[i] == _vault) return true;
+        }
+        return false;
     }
-    function vaultInfoByvault(address _vault) external view returns(address, address) {
 
-    }
     function supportedVaults() public view returns(address[] memory) {
         return registeredVaults;
     }
     
-    //logic functions
     function isBaseTokenForVault(address _vault, _token) public view returns(bool) {
-
+        (, address baseToken, ,) = IYRegistry(registry).getVaultInfo(_vault);
+        if (baseToken == _token) return true;
+        return false;
     }
 }
