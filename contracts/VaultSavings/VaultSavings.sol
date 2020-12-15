@@ -67,7 +67,17 @@ contract VaultSavings is IVaultSavings, Ownable, ReentrancyGuard {
         emit  Deposit(_vault, msg.sender, _amount);
     }
 
-    function withdraw(address _vault, uint256 _amount) external override nonReentrant {
+
+    function withdraw(address[] calldata _vaults, uint256[] calldata _amounts) external override {
+        require(_vaults.length == _amounts.length, "Size of arrays does not match");
+
+        for (uint256 i=0; i < _vaults.length; i++) {
+            withdraw(_vaults[i], _amounts[i]);
+        }
+
+    }
+
+    function withdraw(address _vault, uint256 _amount) internal {
         require(isVaultRegistered(_vault), "Vault is not Registered");
         //transfer LP Token if it is allowed to contract
         IERC20(_vault).safeTransferFrom(msg.sender, address(this), _amount);
