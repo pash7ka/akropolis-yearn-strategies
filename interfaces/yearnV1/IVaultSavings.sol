@@ -15,6 +15,7 @@ interface IVaultSavings {
 
     function deposit(address[] calldata _vaults, uint256[] calldata _amounts) external;
     function withdraw(address[] calldata _vaults, uint256[] calldata _amounts) external;
+    function withdraw(address _vault, uint256 amount) external returns(uint256);
     function registerVault(address _vault) external;
     
     function activateVault(address _vault) external;

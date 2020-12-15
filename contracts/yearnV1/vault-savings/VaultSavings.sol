@@ -73,7 +73,7 @@ contract VaultSavings is IVaultSavings, Ownable, ReentrancyGuard {
     }
 
 
-    function withdraw(address[] calldata _vaults, uint256[] calldata _amounts) external override {
+    function withdraw(address[] calldata _vaults, uint256[] calldata _amounts) external override nonReentrant {
         require(_vaults.length == _amounts.length, "Size of arrays does not match");
 
         for (uint256 i=0; i < _vaults.length; i++) {
@@ -82,7 +82,11 @@ contract VaultSavings is IVaultSavings, Ownable, ReentrancyGuard {
 
     }
 
-    function _withdraw(address _vault, uint256 _amount) internal {
+    function withdraw(address _vault, uint256 _amount) external override nonReentrant returns(uint256 lpAmount) {
+        lpAmount = _withdraw(_vault, _amount);
+    }
+
+    function _withdraw(address _vault, uint256 _amount) internal returns(uint256 baseAmount) {
         require(isVaultRegistered(_vault), "Vault is not Registered");
         //transfer LP Token if it is allowed to contract
         IERC20(_vault).safeTransferFrom(msg.sender, address(this), _amount);
@@ -92,7 +96,7 @@ contract VaultSavings is IVaultSavings, Ownable, ReentrancyGuard {
 
         ( , address baseToken,  ,  ,) = IYRegistry(registry).getVaultInfo(_vault);
 
-        uint256 baseAmount = IERC20(baseToken).balanceOf(address(this));
+        baseAmount = IERC20(baseToken).balanceOf(address(this));
 
         //Transfer token to user
         IERC20(baseToken).safeTransfer(msg.sender, baseAmount);

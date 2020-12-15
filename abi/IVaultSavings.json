@@ -269,9 +269,33 @@
       "outputs": [],
       "stateMutability": "nonpayable",
       "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "_vault",
+          "type": "address"
+        },
+        {
+          "internalType": "uint256",
+          "name": "amount",
+          "type": "uint256"
+        }
+      ],
+      "name": "withdraw",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "nonpayable",
+      "type": "function"
     }
   ],
   "contractName": "IVaultSavings",
-  "sha1": "e824b06ffebff67f1689eb7e289f236e907c1cb4",
+  "sha1": "9f360593a122bc1f508bc97480710ef5587f610f",
   "type": "interface"
 }
