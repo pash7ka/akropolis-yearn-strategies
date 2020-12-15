@@ -14,6 +14,8 @@ interface IVaultSavings {
     event Withdraw(address indexed vault, address indexed user, uint256 baseAmount, uint256 lpAmount);
 
     function deposit(address[] calldata _vaults, uint256[] calldata _amounts) external;
+    function deposit(address _vault, uint256 _amount) external returns(uint256);
+
     function withdraw(address[] calldata _vaults, uint256[] calldata _amounts) external;
     function withdraw(address _vault, uint256 amount) external returns(uint256);
     function registerVault(address _vault) external;

@@ -48,9 +48,13 @@ contract VaultSavings is IVaultSavings, Ownable, ReentrancyGuard {
             _deposit(_vaults[i], _amounts[i]);
         }
     }
+
+    function deposit(address _vault, uint256 _amount) external override nonReentrant returns(uint256 lpAmount) {
+        lpAmount = _deposit(_vault, _amount);
+    }
    
 
-    function _deposit(address _vault, uint256 _amount) internal {
+    function _deposit(address _vault, uint256 _amount) internal returns(uint256 lpAmount) {
         //check vault
         require(isVaultRegistered(_vault), "Vault is not Registered");
 
@@ -65,7 +69,7 @@ contract VaultSavings is IVaultSavings, Ownable, ReentrancyGuard {
         //deposit token to vault
         IVault(_vault).deposit(_amount);
 
-        uint256 lpAmount = IERC20(_vault).balanceOf(address(this));
+        lpAmount = IERC20(_vault).balanceOf(address(this));
         //send new tokens to user
         IERC20(_vault).safeTransfer(msg.sender, lpAmount);
 
@@ -82,8 +86,8 @@ contract VaultSavings is IVaultSavings, Ownable, ReentrancyGuard {
 
     }
 
-    function withdraw(address _vault, uint256 _amount) external override nonReentrant returns(uint256 lpAmount) {
-        lpAmount = _withdraw(_vault, _amount);
+    function withdraw(address _vault, uint256 _amount) external override nonReentrant returns(uint256 baseAmount) {
+        baseAmount = _withdraw(_vault, _amount);
     }
 
     function _withdraw(address _vault, uint256 _amount) internal returns(uint256 baseAmount) {

@@ -149,6 +149,30 @@
     {
       "inputs": [
         {
+          "internalType": "address",
+          "name": "_vault",
+          "type": "address"
+        },
+        {
+          "internalType": "uint256",
+          "name": "_amount",
+          "type": "uint256"
+        }
+      ],
+      "name": "deposit",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
           "internalType": "address[]",
           "name": "_vaults",
           "type": "address[]"
@@ -296,6 +320,6 @@
     }
   ],
   "contractName": "IVaultSavings",
-  "sha1": "9f360593a122bc1f508bc97480710ef5587f610f",
+  "sha1": "f781006d30c048a9816f89306ee2072ae7830b91",
   "type": "interface"
 }
