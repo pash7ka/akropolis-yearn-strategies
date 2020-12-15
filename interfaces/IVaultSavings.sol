@@ -28,5 +28,4 @@ interface IVaultSavings {
     
     //logic functions
     function isBaseTokenForVault(address _vault, address _token) external view returns(bool);
-
 }
