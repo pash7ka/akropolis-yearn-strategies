@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: AGPL V3.0
 
-pragma solidity ^0.6.12;
+pragma solidity >=0.6.0 <0.8.0;
+
 pragma experimental ABIEncoderV2;
 
 import "@openzeppelinV3/contracts/token/ERC20/IERC20.sol";
@@ -38,15 +39,18 @@ contract VaultSavings is IVaultSavings, Ownable, ReentrancyGuard {
     
 
 
+    // deposit, withdraw
+
     function deposit(address[] calldata _vaults, uint256[] calldata _amounts) external override nonReentrant  {
         require(_vaults.length == _amounts.length, "Size of arrays does not match");
 
         for (uint256 i=0; i < _vaults.length; i++) {
-            deposit(_vaults[i], _amounts[i]);
+            _deposit(_vaults[i], _amounts[i]);
         }
     }
    
-    function deposit(address _vault, uint256 _amount) internal {
+
+    function _deposit(address _vault, uint256 _amount) internal {
         //check vault
         require(isVaultRegistered(_vault), "Vault is not Registered");
 
@@ -73,12 +77,12 @@ contract VaultSavings is IVaultSavings, Ownable, ReentrancyGuard {
         require(_vaults.length == _amounts.length, "Size of arrays does not match");
 
         for (uint256 i=0; i < _vaults.length; i++) {
-            withdraw(_vaults[i], _amounts[i]);
+            _withdraw(_vaults[i], _amounts[i]);
         }
 
     }
 
-    function withdraw(address _vault, uint256 _amount) internal {
+    function _withdraw(address _vault, uint256 _amount) internal {
         require(isVaultRegistered(_vault), "Vault is not Registered");
         //transfer LP Token if it is allowed to contract
         IERC20(_vault).safeTransferFrom(msg.sender, address(this), _amount);
@@ -111,9 +115,21 @@ contract VaultSavings is IVaultSavings, Ownable, ReentrancyGuard {
         emit VaultRegistered(_vault, baseToken);
     }
 
-    function disableVault(address _vault) external override {
+    function activateVault(address _vault) external override {
         require(isVaultRegistered(_vault), "Vault is not registered");
-        (, address baseToken,  ,  ,) = IYRegistry(_vault).getVaultInfo(_vault);
+    
+        vaults[_vault] = VaultInfo({
+            isActive: true,
+            blockNumber: block.number
+        });
+
+       emit VaultActivated(_vault);
+
+    }
+
+    function deactivateVault(address _vault) external override {
+        require(isVaultRegistered(_vault), "Vault is not registered");
+    
         vaults[_vault] = VaultInfo({
             isActive: false,
             blockNumber: block.number
@@ -131,17 +147,28 @@ contract VaultSavings is IVaultSavings, Ownable, ReentrancyGuard {
         return false;
     }
 
-    function supportedVaults() external override view returns(address[] memory) {
-        return registeredVaults;
+    function isVaultActive(address _vault) public override view returns(bool) {
+
+        return vaults[_vault].isActive;
     }
-    
+
     function isBaseTokenForVault(address _vault, address _token) public override view returns(bool) {
         (, address baseToken,  ,  ,) = IYRegistry(registry).getVaultInfo(_vault);
         if (baseToken == _token) return true;
         return false;
     }
 
-    /*
-      чтение активных волтов, и проверка активный ли vault
-    */
+    function supportedVaults() external override view returns(address[] memory) {
+        return registeredVaults;
+    }
+
+    function activeVaults()  external override view returns(address[] memory _vaults) {  
+        uint256 j = 0;
+        for (uint256 i = 0; i < registeredVaults.length; i++) {
+            if (vaults[registeredVaults[i]].isActive) {
+                _vaults[j] = registeredVaults[i]; 
+                j = j.add(1);
+            } 
+        }
+    }   
 }
