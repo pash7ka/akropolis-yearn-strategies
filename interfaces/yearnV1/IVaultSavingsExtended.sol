@@ -7,8 +7,10 @@ pragma solidity ^0.6.12;
 interface IVaultSavingsExtended { 
 
     event DepositToken(address indexed vault, address indexed token, uint256 dnAmount);
+    event WithdrawToken(address indexed vault, address indexed token, uint256 dnAmount);
     
     function deposit(address[] calldata _vaults, address[] calldata _tokens, uint256[] calldata _dnAmounts) external;
+    
     function deposit(address _vault, address[] memory _tokens, uint256[] memory _dnAmounts) external;
 
     function addSupportTokensToVault(address _vault, address[] calldata _tokens) external;

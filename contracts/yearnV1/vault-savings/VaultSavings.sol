@@ -61,10 +61,11 @@ contract VaultSavings is IVaultSavings, Ownable, ReentrancyGuard {
         //deposit token to vault
         IVault(_vault).deposit(_amount);
 
+        uint256 lpAmount = IERC20(_vault).balanceOf(address(this));
         //send new tokens to user
-        IERC20(_vault).safeTransfer(msg.sender, IERC20(_vault).balanceOf(address(this)));
+        IERC20(_vault).safeTransfer(msg.sender, lpAmount);
 
-        emit  Deposit(_vault, msg.sender, _amount);
+        emit  Deposit(_vault, msg.sender, _amount, lpAmount);
     }
 
 
@@ -87,10 +88,12 @@ contract VaultSavings is IVaultSavings, Ownable, ReentrancyGuard {
 
         ( , address baseToken,  ,  ,) = IYRegistry(registry).getVaultInfo(_vault);
 
-        //Transfer token to user
-        IERC20(baseToken).safeTransfer(msg.sender, IERC20(baseToken).balanceOf(address(this)));
+        uint256 baseAmount = IERC20(baseToken).balanceOf(address(this));
 
-        emit Withdraw(_vault, msg.sender, _amount);
+        //Transfer token to user
+        IERC20(baseToken).safeTransfer(msg.sender, baseAmount);
+
+        emit Withdraw(_vault, msg.sender, baseAmount, _amount);
     }
 
     function registerVault(address _vault) external override {
@@ -137,4 +140,8 @@ contract VaultSavings is IVaultSavings, Ownable, ReentrancyGuard {
         if (baseToken == _token) return true;
         return false;
     }
+
+    /*
+      чтение активных волтов, и проверка активный ли vault
+    */
 }

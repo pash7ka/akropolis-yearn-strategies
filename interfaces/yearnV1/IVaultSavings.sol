@@ -9,9 +9,8 @@ interface IVaultSavings {
     event VaultRegistered(address indexed vault, address baseToken);
     event VaultDisabled(address indexed vault);
 
-    event Deposit(address indexed vault, address indexed user, uint256 nAmount);
-    event WithdrawToken(address indexed vault, address indexed token, uint256 dnAmount);
-    event Withdraw(address indexed vault, address indexed user, uint256 nAmount);
+    event Deposit(address indexed vault, address indexed user, uint256 baseAmount, uint256 lpAmount);
+    event Withdraw(address indexed vault, address indexed user, uint256 baseAmount, uint256 lpAmount);
 
     function deposit(address[] calldata _vaults, uint256[] calldata _amounts) external;
 
