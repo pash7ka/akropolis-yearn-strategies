@@ -10,9 +10,9 @@ import "@openzeppelinV3/contracts/math/SafeMath.sol";
 import "@openzeppelinV3/contracts/Access/Ownable.sol";
 import "@openzeppelinV3/contracts/utils/ReentrancyGuard.sol";
 
-import "../../interfaces/IVault.sol";
-import "../../interfaces/IVaultSavings.sol";
-import "../../interfaces/IYRegistry.sol";
+import "../../../interfaces/yearnV1/IVault.sol";
+import "../../../interfaces/yearnV1/IVaultSavings.sol";
+import "../../../interfaces/yearnV1/IYRegistry.sol";
 
 contract VaultSavings is IVaultSavings, Ownable, ReentrancyGuard {
 
