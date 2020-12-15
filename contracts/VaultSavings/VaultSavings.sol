@@ -36,8 +36,17 @@ contract VaultSavings is IVaultSavings, Ownable, ReentrancyGuard {
         registry = _registry;
     }
     
+
+
+    function deposit(address[] calldata _vaults, uint256[] calldata _amounts) external override nonReentrant  {
+        require(_vaults.length == _amounts.length, "Size of arrays does not match");
+
+        for (uint256 i=0; i < _vaults.length; i++) {
+            deposit(_vaults[i], _amounts[i]);
+        }
+    }
    
-    function deposit(address _vault, uint256 _amount) external override nonReentrant  {
+    function deposit(address _vault, uint256 _amount) internal {
         //check vault
         require(isVaultRegistered(_vault), "Vault is not Registered");
 
