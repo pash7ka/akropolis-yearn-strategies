@@ -108,7 +108,7 @@ contract VaultSavings is IVaultSavings, Ownable, ReentrancyGuard {
         emit Withdraw(_vault, msg.sender, baseAmount, _amount);
     }
 
-    function registerVault(address _vault) external override {
+    function registerVault(address _vault) external override onlyOwner {
         require(!isVaultRegistered(_vault), "Vault is already registered");
 
         registeredVaults.push(_vault);
@@ -123,7 +123,7 @@ contract VaultSavings is IVaultSavings, Ownable, ReentrancyGuard {
         emit VaultRegistered(_vault, baseToken);
     }
 
-    function activateVault(address _vault) external override {
+    function activateVault(address _vault) external override onlyOwner {
         require(isVaultRegistered(_vault), "Vault is not registered");
     
         vaults[_vault] = VaultInfo({
@@ -135,7 +135,7 @@ contract VaultSavings is IVaultSavings, Ownable, ReentrancyGuard {
 
     }
 
-    function deactivateVault(address _vault) external override {
+    function deactivateVault(address _vault) external override onlyOwner {
         require(isVaultRegistered(_vault), "Vault is not registered");
     
         vaults[_vault] = VaultInfo({
