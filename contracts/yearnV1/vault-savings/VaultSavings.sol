@@ -13,7 +13,7 @@ import "@openzeppelinV3/contracts/utils/ReentrancyGuard.sol";
 
 import "../../../interfaces/yearnV1/IVault.sol";
 import "../../../interfaces/yearnV1/IVaultSavings.sol";
-import "../../../interfaces/yearnV1/IYRegistry.sol";
+
 
 contract VaultSavings is IVaultSavings, Ownable, ReentrancyGuard {
 
@@ -31,14 +31,7 @@ contract VaultSavings is IVaultSavings, Ownable, ReentrancyGuard {
     address[] internal registeredVaults;
     mapping(address => VaultInfo) vaults;
 
-    address registry;
-
-    function initialize(address _registry) public onlyOwner {
-        registry = _registry;
-    }
     
-
-
     // deposit, withdraw
 
     function deposit(address[] calldata _vaults, uint256[] calldata _amounts) external override nonReentrant  {
@@ -58,7 +51,7 @@ contract VaultSavings is IVaultSavings, Ownable, ReentrancyGuard {
         //check vault
         require(isVaultRegistered(_vault), "Vault is not Registered");
 
-        ( , address baseToken,  ,  ,) = IYRegistry(registry).getVaultInfo(_vault);
+        address baseToken = IVault(_vault).token();
      
         //transfer token if it is allowed to contract
         IERC20(baseToken).safeTransferFrom(msg.sender, address(this), _amount);
@@ -98,7 +91,7 @@ contract VaultSavings is IVaultSavings, Ownable, ReentrancyGuard {
         //burn tokens from vault
         IVault(_vault).withdraw(_amount);
 
-        ( , address baseToken,  ,  ,) = IYRegistry(registry).getVaultInfo(_vault);
+        address baseToken = IVault(_vault).token();
 
         baseAmount = IERC20(baseToken).balanceOf(address(this));
 
@@ -118,7 +111,7 @@ contract VaultSavings is IVaultSavings, Ownable, ReentrancyGuard {
             blockNumber: block.number
         });
 
-        (, address baseToken,  ,  ,) = IYRegistry(registry).getVaultInfo(_vault);
+        address baseToken = IVault(_vault).token();
 
         emit VaultRegistered(_vault, baseToken);
     }
@@ -161,7 +154,7 @@ contract VaultSavings is IVaultSavings, Ownable, ReentrancyGuard {
     }
 
     function isBaseTokenForVault(address _vault, address _token) public override view returns(bool) {
-        (, address baseToken,  ,  ,) = IYRegistry(registry).getVaultInfo(_vault);
+        address baseToken = IVault(_vault).token();
         if (baseToken == _token) return true;
         return false;
     }
