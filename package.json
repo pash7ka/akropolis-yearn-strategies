@@ -6,13 +6,14 @@
     "author": "Pavel Rubin <pash7ka@gmail.com>",
     "license": "MIT",
     "scripts": {
-        "compile": "npx brownie compile --all",
+        "compile": "brownie compile --all",
+        "deploy": "brownie run deploy_vault_savings.py",
         "ganache": "npx ganache-cli --gasLimit 0xfffffffffff -e 10000000 --port 8545",
         "generate-abi": "npx truffle-abi -o ./abi",
         "generate-artifacts": "npm run compile && npm run generate-abi",
         "install": "pip3 install -r requirements-dev.txt --no-index",
         "postinstall": "npm run generate-artifacts",
-        "test": "npx brownie test"
+        "test": "brownie test"
     },
     "dependencies": {
         "@openzeppelin/cli": "^2.8.2",
