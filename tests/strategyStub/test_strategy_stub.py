@@ -15,8 +15,8 @@ def calc_shares(token, vault, amount):
     return int( (token.balanceOf(vault) + vault.totalDebt()) * amount / float(vault.totalSupply()) )
 
 @pytest.fixture
-def vault(deployer, token, rewards, Vault):
-    vault = deployer.deploy(Vault, token, deployer, rewards, "", "")
+def vault(deployer, token, rewards, TestVaultV2):
+    vault = deployer.deploy(TestVaultV2, token, deployer, rewards, "", "")
     vault.setGovernance(deployer, {"from": deployer})
     vault.setRewards(rewards, {"from": deployer})
     vault.setGuardian(deployer, {"from": deployer})
