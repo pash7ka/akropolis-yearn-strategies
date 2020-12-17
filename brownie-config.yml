@@ -13,7 +13,7 @@ networks:
       gas_limit: 6721975
       accounts: 10
   rinkeby:
-    default_contract_owner: true
+    gas_limit: max
 
 
 # automatically fetch contract sources from Etherscan

@@ -33,6 +33,38 @@ brownie test
 ```
 
 
+### Deployment
+Create *.env* file with *DEPLOYER_PRIVATE_KEY* filled up.
+
+For the local deployment run the command:
+
+```bash
+npm run deploy:dev
+```
+or 
+```bash
+brownie run deploy_vault_savings.py
+```
+
+For the *Rinkeby* deployment firstly export Infura id:
+
+```bash
+export WEB3_INFURA_PROJECT_ID=b20c30c9e04c4a6bb1cd728ff589a15e
+```
+
+and run:
+
+```bash
+npm run deploy:rinkeby
+```
+or 
+```bash
+brownie run deploy_vault_savings.py --network rinkeby
+```
+
+
+
+
 ## License
 
 Copyright (c) 2020 Akropolis, AGPL V3.0

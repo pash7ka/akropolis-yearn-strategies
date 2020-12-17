@@ -1,11 +1,11 @@
 import os
-from pathlib import Path
 from dotenv import load_dotenv, find_dotenv
 
 from brownie import VaultSavings, yTestVault, TestERC20, YTestRegistry, YTestController, YTestStrategy, accounts, network, web3
 
 def main():
     #load_dotenv(dotenv_path=Path('..')/".env", override=True)
+        
     load_dotenv(find_dotenv())
 
     print(f"You are using the '{network.show_active()}' network")
@@ -40,7 +40,6 @@ def main():
 
     registry.addVault.transact(yVault.address, {'from': deployer})
     vaultSavings.registerVault.transact(yVault.address, {'from': deployer})
-    vaultSavings.activateVault.transact(yVault.address, {'from': deployer})
     print("Vault registered")
 
 
