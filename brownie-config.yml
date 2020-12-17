@@ -12,6 +12,8 @@ networks:
       port: 8545
       gas_limit: 6721975
       accounts: 10
+  rinkeby:
+    gas_limit: max
 
 
 # automatically fetch contract sources from Etherscan
