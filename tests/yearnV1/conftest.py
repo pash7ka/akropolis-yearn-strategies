@@ -20,12 +20,12 @@ def token(deployer, regular_user, TestERC20):
     token = deployer.deploy(TestERC20, "Test Token", "TST", 18)
     token.mint(TOTAL_TOKENS, {"from": deployer})
     assert token.balanceOf(deployer) == TOTAL_TOKENS
-    token.transfer(regular_user, TOTAL_TOKENS, {"from": deployer})
+    token.transfer(regular_user, TOTAL_TOKENS // 2, {"from": deployer})
     yield token
 
 @pytest.fixture(scope="module")
 def controller(deployer, YTestController):
-    controller = deployer.deploy(YTestController)
+    controller = deployer.deploy(YTestController, deployer.address)
     yield controller
 
 @pytest.fixture(scope="module")

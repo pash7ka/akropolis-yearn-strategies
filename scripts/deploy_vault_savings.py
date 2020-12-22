@@ -16,7 +16,7 @@ def main():
     print(f"You are using: 'deployer' [{deployer.address}]")
 
     #Deploy controller
-    controller = deployer.deploy(YTestController)
+    controller = deployer.deploy(YTestController, deployer.address)
     print(f"Controller deployed at {controller.address}")
 
 
@@ -31,6 +31,7 @@ def main():
     print(f"Strategy deployed at {strategy_3crv.address}")
     
     controller.setVault(token_3Crv.address, yVault_3Crv.address, {'from': deployer})
+    controller.approveStrategy(token_3Crv.address, strategy_3crv.address, {'from': deployer})
     controller.setStrategy(token_3Crv.address, strategy_3crv.address, {'from': deployer})
 
     # 2. crvBUSD vault
@@ -44,6 +45,7 @@ def main():
     print(f"Strategy deployed at {strategy_crvBUSD.address}")
     
     controller.setVault(token_crvBUSD.address, yVault_crvBUSD.address, {'from': deployer})
+    controller.approveStrategy(token_crvBUSD.address, strategy_crvBUSD.address, {'from': deployer})
     controller.setStrategy(token_crvBUSD.address, strategy_crvBUSD.address, {'from': deployer})
 
     # 3. yUSD vault
@@ -57,6 +59,7 @@ def main():
     print(f"Strategy deployed at {strategy_yUSD.address}")
     
     controller.setVault(token_yUSD.address, yVault_yUSD.address, {'from': deployer})
+    controller.approveStrategy(token_yUSD.address, strategy_yUSD.address, {'from': deployer})
     controller.setStrategy(token_yUSD.address, strategy_yUSD.address, {'from': deployer})
 
     # 4. SBTC vault
@@ -70,6 +73,7 @@ def main():
     print(f"Strategy deployed at {strategy_SBTC.address}")
     
     controller.setVault(token_SBTC.address, yVault_SBTC.address, {'from': deployer})
+    controller.approveStrategy(token_SBTC.address, strategy_SBTC.address, {'from': deployer})
     controller.setStrategy(token_SBTC.address, strategy_SBTC.address, {'from': deployer})
 
     # 4. crvCOMP vault
@@ -83,6 +87,7 @@ def main():
     print(f"Strategy deployed at {strategy_crvCOMP.address}")
     
     controller.setVault(token_crvCOMP.address, yVault_crvCOMP.address, {'from': deployer})
+    controller.approveStrategy(token_crvCOMP.address, strategy_crvCOMP.address, {'from': deployer})
     controller.setStrategy(token_crvCOMP.address, strategy_crvCOMP.address, {'from': deployer})
 
     #Deploy VaultSavings, Registry and add Vaults
