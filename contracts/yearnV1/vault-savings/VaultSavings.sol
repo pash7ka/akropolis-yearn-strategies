@@ -167,9 +167,18 @@ contract VaultSavings is IVaultSavings, Ownable, ReentrancyGuard {
         uint256 j = 0;
         for (uint256 i = 0; i < registeredVaults.length; i++) {
             if (vaults[registeredVaults[i]].isActive) {
-                _vaults[j] = registeredVaults[i]; 
                 j = j.add(1);
-            } 
+            }
+        }
+        if (j > 0) {
+            _vaults = new address[](j);
+            j = 0;
+            for (uint256 i = 0; i < registeredVaults.length; i++) {
+                if (vaults[registeredVaults[i]].isActive) {
+                    _vaults[j] = registeredVaults[i]; 
+                    j = j.add(1);
+                }
+            }
         }
     }   
 }
