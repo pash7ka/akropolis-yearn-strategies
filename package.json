@@ -24,6 +24,7 @@
     },
     "devDependencies": {
         "@openzeppelin/contracts": "^3.1.0",
+        "@openzeppelin/contracts-upgradeable": "^3.3.0",
         "@truffle/hdwallet-provider": "^1.0.38"
     }
 }
