@@ -19,6 +19,7 @@ yarn-error.log*
 .openzeppelin/.session
 .openzeppelin/.lock
 @openzeppelin
+OpenZeppelin/
 
 # Dependency directories
 node_modules/
