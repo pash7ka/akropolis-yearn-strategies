@@ -39,6 +39,7 @@ brownie test
 
 ### Deployment
 Create *.env* file with *DEPLOYER_PRIVATE_KEY* filled up.
+*.env* file also should contain *ADMIN_PRIVATE_KEY* in case of human-admin or *PROXY_ADMIN_ADDRESS* in case of AdminProxy contract already deployed. Leave both variables empty if new AdminProxy contract should be deployed.
 
 For the local deployment run the command:
 

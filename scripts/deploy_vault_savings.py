@@ -3,7 +3,7 @@ from dotenv import load_dotenv, find_dotenv
 from brownie import *
 #VaultSavings, yTestVault, TestERC20, YTestRegistry, YTestController, YTestStrategy, accounts, network, web3
 
-from utils.deploy_helpers import deploy_proxy, deploy_admin
+from utils.deploy_helpers import deploy_proxy, deploy_admin, get_proxy_admin, upgrade_proxy
 
 def main():
     #load_dotenv(dotenv_path=Path('..')/".env", override=True)
@@ -11,15 +11,24 @@ def main():
     load_dotenv(find_dotenv())
 
     print(f"You are using the '{network.show_active()}' network")
-    if (network.show_active() == 'development'):
+    if (network.show_active() == '1development'):
         deployer = accounts[0]
+        proxy_admin = accounts[1]
     else:
         deployer = accounts.add(os.getenv("DEPLOYER_PRIVATE_KEY"))
-    print(f"You are using: 'deployer' [{deployer.address}]")
+        admin_key = os.getenv("ADMIN_PRIVATE_KEY")
+        proxy_admin_address = os.getenv("PROXY_ADMIN_ADDRESS")
+        # Admin is an account
+        if admin_key:
+            proxy_admin = accounts.add(admin_key)
+        elif proxy_admin_address: #Admin is a contract
+            proxy_admin = get_proxy_admin(proxy_admin_address)
+        else: #New proxy admin needed
+            proxy_admin = deploy_admin(deployer)
+            print("ProxyAdmin deployed")
 
-    #Deploy admin proxy
-    proxy_admin = deploy_admin(deployer)
-    print(f"Proxy Admin deployed at {proxy_admin.address}")
+    print(f"You are using: 'deployer' [{deployer.address}]")
+    print(f"Proxy Admin at {proxy_admin.address}")
 
     #Deploy controller
     controller = deployer.deploy(YTestController, deployer.address)
@@ -123,5 +132,4 @@ def main():
     registry.addVault.transact(yVault_crvCOMP.address, {'from': deployer})
     vaultSavingsImplFromProxy.registerVault.transact(yVault_crvCOMP.address, {'from': deployer})
     print("crvCOMP Vault registered")
-
 
