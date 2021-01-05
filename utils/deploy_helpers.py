@@ -21,7 +21,7 @@ def deploy_proxy(deployer, proxy_admin, ImplContract, *args):
 
     #Deploy proxy next
     initializer_data = contract_impl.initialize.encode_input(*args)
-    proxy_contract = deployer.deploy(cur_project.TransparentUpgradeableProxy, contract_impl.address, proxy_admin, initializer_data)
+    proxy_contract = deployer.deploy(cur_project.UtilProxy, contract_impl.address, proxy_admin, initializer_data)
 
     #Route all calls to go through the proxy contract
     contract_impl_from_proxy = Contract.from_abi(ImplContract._name, proxy_contract.address, ImplContract.abi)
@@ -38,7 +38,7 @@ def deploy_admin(deployer):
     @return Contract container for the admin contract
     """
     cur_project = project.get_loaded_projects()[0]
-    return deployer.deploy(cur_project.ProxyAdmin)
+    return deployer.deploy(cur_project.UtilProxyAdmin)
 
 
 def upgrade_proxy(deployer, proxy_admin, proxy_contract, NewImplContract):
@@ -50,7 +50,6 @@ def upgrade_proxy(deployer, proxy_admin, proxy_contract, NewImplContract):
     @param proxy_contract Brownie Contract container for the Proxy.
     @param NewImplContract Brownie Contract container for the new implementation.
     @return Contract container for the proxy wrapped into the implementation interface
-            Contract container for the proxy
             Contract container for the implementation
     """
     #Deploy new implementation first
@@ -69,4 +68,4 @@ def upgrade_proxy(deployer, proxy_admin, proxy_contract, NewImplContract):
 
 def get_proxy_admin(proxy_admin_address):
     cur_project = project.get_loaded_projects()[0]
-    return Contract.from_abi(cur_project.ProxyAdmin._name, proxy_admin_address, cur_project.ProxyAdmin.abi)
+    return Contract.from_abi(cur_project.UtilProxyAdmin._name, proxy_admin_address, cur_project.UtilProxyAdmin.abi)
