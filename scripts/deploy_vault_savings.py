@@ -11,7 +11,7 @@ def main():
     load_dotenv(find_dotenv())
 
     print(f"You are using the '{network.show_active()}' network")
-    if (network.show_active() == '1development'):
+    if (network.show_active() == 'development'):
         deployer = accounts[0]
         proxy_admin = accounts[1]
     else:
