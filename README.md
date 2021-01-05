@@ -23,6 +23,10 @@ cd contracts
 pip install -r requirements.txt
 ```
 
+Due to the existing [bug in Brownie framework](https://github.com/eth-brownie/brownie/issues/893) you should install the upgradable contracts package manually:
+```
+brownie pm clone "OpenZeppelin/openzeppelin-contracts-upgradeable@3.3.0"
+```
 
 ### Running the Tests
 
