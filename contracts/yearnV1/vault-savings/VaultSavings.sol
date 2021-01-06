@@ -4,22 +4,22 @@ pragma solidity >=0.6.0 <0.8.0;
 
 pragma experimental ABIEncoderV2;
 
-import "@openzeppelinV3/contracts/token/ERC20/IERC20.sol";
-import "@openzeppelinV3/contracts/token/ERC20/SafeERC20.sol";
-import "@openzeppelinV3/contracts/utils/Address.sol";
-import "@openzeppelinV3/contracts/math/SafeMath.sol";
-import "@openzeppelinV3/contracts/Access/Ownable.sol";
-import "@openzeppelinV3/contracts/utils/ReentrancyGuard.sol";
+import {IERC20Upgradeable as IERC20} from "@ozUpgradesV3/contracts/token/ERC20/IERC20Upgradeable.sol";
+import {SafeERC20Upgradeable as SafeERC20} from "@ozUpgradesV3/contracts/token/ERC20/SafeERC20Upgradeable.sol";
+import {AddressUpgradeable as Address} from "@ozUpgradesV3/contracts/utils/AddressUpgradeable.sol";
+import {SafeMathUpgradeable as SafeMath} from "@ozUpgradesV3/contracts/math/SafeMathUpgradeable.sol";
+import "@ozUpgradesV3/contracts/access/OwnableUpgradeable.sol";
+import "@ozUpgradesV3/contracts/utils/ReentrancyGuardUpgradeable.sol";
 
 import "../../../interfaces/yearnV1/IVault.sol";
 import "../../../interfaces/yearnV1/IVaultSavings.sol";
 
 
-contract VaultSavings is IVaultSavings, Ownable, ReentrancyGuard {
+contract VaultSavings is IVaultSavings, OwnableUpgradeable, ReentrancyGuardUpgradeable {
 
     uint256 constant MAX_UINT256 = uint256(-1);
 
-    using SafeERC20 for IERC20;
+    using SafeERC20  for IERC20;
     using Address for address;
     using SafeMath for uint256;
 
@@ -30,6 +30,11 @@ contract VaultSavings is IVaultSavings, Ownable, ReentrancyGuard {
 
     address[] internal registeredVaults;
     mapping(address => VaultInfo) vaults;
+
+    function initialize() public initializer {
+        __Ownable_init();
+        __ReentrancyGuard_init();
+    }
 
     
     // deposit, withdraw

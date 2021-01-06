@@ -46,7 +46,7 @@ def test_deposit(register_vault, token, vault, vaultSavings, regular_user, deplo
     # Initial deposit
     user_balance_before = token.balanceOf(regular_user)
     token.approve(vaultSavings.address, DEPOSIT_VALUE, {'from': regular_user})
-    vaultSavings.deposit['address,uint'].transact(vault.address, DEPOSIT_VALUE, {'from': regular_user})
+    vaultSavings.deposit['address,uint'](vault.address, DEPOSIT_VALUE, {'from': regular_user})
 
     user_balance_after = token.balanceOf(regular_user)
 

@@ -23,6 +23,10 @@ cd contracts
 pip install -r requirements.txt
 ```
 
+Due to the existing [bug in Brownie framework](https://github.com/eth-brownie/brownie/issues/893) you should install the upgradable contracts package manually:
+```
+brownie pm clone "OpenZeppelin/openzeppelin-contracts-upgradeable@3.3.0"
+```
 
 ### Running the Tests
 
@@ -35,6 +39,7 @@ brownie test
 
 ### Deployment
 Create *.env* file with *DEPLOYER_PRIVATE_KEY* filled up.
+*.env* file also should contain *ADMIN_PRIVATE_KEY* in case of human-admin or *PROXY_ADMIN_ADDRESS* in case of AdminProxy contract already deployed. Leave both variables empty if new AdminProxy contract should be deployed.
 
 For the local deployment run the command:
 
