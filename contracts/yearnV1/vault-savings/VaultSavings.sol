@@ -14,8 +14,9 @@ import "@ozUpgradesV3/contracts/utils/ReentrancyGuardUpgradeable.sol";
 import "../../../interfaces/yearnV1/IVault.sol";
 import "../../../interfaces/yearnV1/IVaultSavings.sol";
 
+import "@ozUpgradesV3/contracts/utils/PausableUpgradeable.sol";
 
-contract VaultSavings is IVaultSavings, OwnableUpgradeable, ReentrancyGuardUpgradeable {
+contract VaultSavings is IVaultSavings, OwnableUpgradeable, ReentrancyGuardUpgradeable, PausableUpgradeable {
 
     uint256 constant MAX_UINT256 = uint256(-1);
 
@@ -34,12 +35,13 @@ contract VaultSavings is IVaultSavings, OwnableUpgradeable, ReentrancyGuardUpgra
     function initialize() public initializer {
         __Ownable_init();
         __ReentrancyGuard_init();
+        __Pausable_init();
     }
 
     
     // deposit, withdraw
 
-    function deposit(address[] calldata _vaults, uint256[] calldata _amounts) external override nonReentrant  {
+    function deposit(address[] calldata _vaults, uint256[] calldata _amounts) external override nonReentrant whenNotPaused {
         require(_vaults.length == _amounts.length, "Size of arrays does not match");
 
         for (uint256 i=0; i < _vaults.length; i++) {
@@ -47,7 +49,7 @@ contract VaultSavings is IVaultSavings, OwnableUpgradeable, ReentrancyGuardUpgra
         }
     }
 
-    function deposit(address _vault, uint256 _amount) external override nonReentrant returns(uint256 lpAmount) {
+    function deposit(address _vault, uint256 _amount) external override nonReentrant whenNotPaused returns(uint256 lpAmount)  {
         lpAmount = _deposit(_vault, _amount);
     }
    
@@ -75,7 +77,7 @@ contract VaultSavings is IVaultSavings, OwnableUpgradeable, ReentrancyGuardUpgra
     }
 
 
-    function withdraw(address[] calldata _vaults, uint256[] calldata _amounts) external override nonReentrant {
+    function withdraw(address[] calldata _vaults, uint256[] calldata _amounts) external override nonReentrant whenNotPaused {
         require(_vaults.length == _amounts.length, "Size of arrays does not match");
 
         for (uint256 i=0; i < _vaults.length; i++) {
@@ -84,7 +86,7 @@ contract VaultSavings is IVaultSavings, OwnableUpgradeable, ReentrancyGuardUpgra
 
     }
 
-    function withdraw(address _vault, uint256 _amount) external override nonReentrant returns(uint256 baseAmount) {
+    function withdraw(address _vault, uint256 _amount) external override nonReentrant whenNotPaused returns(uint256 baseAmount) {
         baseAmount = _withdraw(_vault, _amount);
     }
 
@@ -142,6 +144,14 @@ contract VaultSavings is IVaultSavings, OwnableUpgradeable, ReentrancyGuardUpgra
         });
 
        emit VaultDisabled(_vault);
+    }
+
+    function pause() external onlyOwner {
+        _pause();
+    }
+
+    function unpause() external onlyOwner {
+        _unpause();
     }
     
 
