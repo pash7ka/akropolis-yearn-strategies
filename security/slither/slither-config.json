@@ -1,0 +1,13 @@
+{
+    "compile_force_framework": "Truffle",
+    "detectors_to_exclude": "naming-convention",
+    "exclude_informational": false,
+    "exclude_low": false,
+    "exclude_medium": false,
+    "exclude_high": false,
+    "disable_color": false,
+    "filter_paths": "OpenZeppelin|iearn-finance|test",
+    "ignore_compile": true,
+    "legacy_ast": false,
+    "solc": "0.6.12"
+}
