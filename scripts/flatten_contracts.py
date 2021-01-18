@@ -1,8 +1,8 @@
 from os import path
-from brownie import VaultSavings
+from brownie import *
 
 def main():
-    contracts_to_flatten = [VaultSavings]
+    contracts_to_flatten = [VaultSavings, TestVaultSavings]
 
     for contract_obj in contracts_to_flatten:
         contract_info = contract_obj.get_verification_info()

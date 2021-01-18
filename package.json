@@ -10,13 +10,14 @@
         "clone-packages": "sh ./security/clone-packages.sh",
         "deploy:rinkeby": "brownie run deploy_vault_savings.py --network rinkeby",
         "deploy:dev": "brownie run deploy_vault_savings.py",
-        "ganache": "npx ganache-cli --gasLimit 0xfffffffffff -e 10000000 --port 8545",
+        "ganache": "npx ganache-cli --gasLimit 0xfffffffffff -e 100000000 --port 8545",
         "generate-abi": "npx truffle-abi -o ./abi",
         "generate-artifacts": "npm run compile && npm run generate-abi",
         "install": "pip3 install -r requirements-dev.txt --no-index && npm run clone-packages",
         "postinstall": "npm run generate-artifacts",
         "sec:flatten": "sh ./security/flattener-run.sh",
         "sec:slither": "sh ./security/slither/slither-run.sh",
+        "sec:echidna": "npm run sec:flatten && sh ./security/echidna/echidna-run.sh",
         "test": "brownie test"
     },
     "dependencies": {
