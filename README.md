@@ -23,7 +23,20 @@ cd contracts
 pip install -r requirements.txt
 ```
 
-Due to the existing [bug in Brownie framework](https://github.com/eth-brownie/brownie/issues/893) you should install the packages manually:
+Run the command:
+```bash
+npm install
+```
+It executes several intallation steps:
+* install all npm dependencies
+* install all python dependencies (if not installed yet) including Brownie framework
+* install Brownie dependency packages (openzeppelin and yearn)
+* copy these packages to the working directory (see explanation below)
+* compile contracts
+* generate abi artifaacts (if needed)
+
+
+Due to the existing [bug in Brownie framework](https://github.com/eth-brownie/brownie/issues/893) you may need to install the packages manually:
 ```
 npm run clone-packages
 ```
@@ -35,6 +48,11 @@ To run the entire suite:
 ```bash
 brownie test
 ```
+
+### Security tools
+
+See [the instruction for running security tools](security/readme.md) upon Akropolis Delphi protocol.
+Slither, Echidna and Manticore are integrated.
 
 
 ### Deployment
