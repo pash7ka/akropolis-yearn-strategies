@@ -35,7 +35,7 @@ compiler:
       runs: 99999
 
   vyper:
-    version: null
+    version: 0.2.8
 
 reports:
   exclude_contracts:

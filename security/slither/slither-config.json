@@ -6,8 +6,10 @@
     "exclude_medium": false,
     "exclude_high": false,
     "disable_color": false,
-    "filter_paths": "OpenZeppelin|iearn-finance|test",
+    "filter_paths": "test|OpenZeppelin|iearn-finance",
     "ignore_compile": true,
     "legacy_ast": false,
-    "solc": "0.6.12"
+    "solc": "0.6.12",
+    "truffle_build_directory": "./build/contracts",
+    "truffle_ignore_compile": true
 }
