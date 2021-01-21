@@ -50,7 +50,7 @@ npm run sec:flatten
 npm run sec:slither
 ```
 
-Detecros' settings can be corrected in [Slither's config file](slither/slither-config.json)
+Detectors' settings can be corrected in [Slither's config file](slither/slither-config.json)
 
 ## 3. Echidna
 
@@ -66,6 +66,8 @@ Run the script:
 ```bash
 npm run sec:load-echidna
 ```
+
+Also, be awared, that Echidna requires Slither to be installed as well.
 
 1. Flatten necessary echidna contracts:
 
