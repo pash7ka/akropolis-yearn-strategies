@@ -34,6 +34,11 @@ jobs:
         with:
           name: slither-report
           path: ./slither_report.txt
+      - name: Check the report
+        shell: bash
+        run: |
+          sh ./security/slither/slither-check-report.sh
+
   echidna:
     runs-on: ubuntu-latest
     steps:
@@ -63,3 +68,7 @@ jobs:
         with:
           name: echidna-report
           path: ./echidna_report.txt
+      - name: Check the report
+        shell: bash
+        run: |
+          sh ./security/echidna/echidna-check-report.sh
