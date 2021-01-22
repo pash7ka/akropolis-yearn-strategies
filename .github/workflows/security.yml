@@ -2,7 +2,7 @@ name: Security-checks
 
 on:
   push:
-    branches: [ yearn-v1-cicd ]
+    branches: [ yearn-v1-vaults ]
   pull_request:
     branches: [ yearn-v1-vaults ]
 
