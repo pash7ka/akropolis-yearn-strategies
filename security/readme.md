@@ -57,7 +57,6 @@ Detectors' settings can be corrected in [Slither's config file](slither/slither-
 Test contracts for Echidna with defined properties to be tested are located in [contracts/test/echidna](contracts/test/echidna) directory.
 [Configuration file](echidna/echidna_conf.yaml) contains necessary settings.
 
-
 ### Prerequisites
 
 To start the analysis you need to load *echidna* binary file in the root directory of the project:
@@ -68,6 +67,7 @@ npm run sec:load-echidna
 ```
 
 Also, be awared, that Echidna requires Slither to be installed as well.
+The main restirction: Echidna does not work correctly on Windows.
 
 1. Flatten necessary echidna contracts:
 
