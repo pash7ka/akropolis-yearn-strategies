@@ -75,7 +75,7 @@ The main restirction: Echidna does not work correctly on Windows.
 npm run sec:flatten-echidna
 ```
 
-2. Compile the files:
+2. Compile all contracts:
 
 ```bash
 npm run compile
@@ -88,5 +88,31 @@ npm run sec:echidna
 ```
 
 ## 4. Manticore
+
 ### Prerequisites
+
+Install Manticore:
+
+```
+pip3 install "manticore[native]"
+```
+
 ### Launch
+
+1. Flatten necessary contracts:
+
+```bash
+npm run sec:flatten
+```
+
+2. Compile the flattened files:
+
+```bash
+npx truffle compile
+```
+
+3. Run the analyzer
+
+```
+manticore flattened/VaultSavings.sol --contract VaultSavings
+```
