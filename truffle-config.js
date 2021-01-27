@@ -59,5 +59,6 @@ module.exports = {
         },
       },
     },
+    vyper: null
   }
 }
