@@ -107,18 +107,18 @@ def test_withdraw(register_vault, token, vault, vaultSavings, regular_user, depl
 
 
 def test_pause_vault(vaultSavings, deployer):
-    vaultSavings.pause({'from': deployer});
+    vaultSavings.pause({'from': deployer})
     assert vaultSavings.paused() == True
 
 
 def test_pause_unpause_vault(vaultSavings, deployer):
     assert vaultSavings.paused() == True
 
-    vaultSavings.unpause({'from': deployer});
+    vaultSavings.unpause({'from': deployer})
     assert vaultSavings.paused() == False
 
 def test_deposit_unpause_vault_reverts(token, vault, vaultSavings, deployer, regular_user):
-    vaultSavings.pause({'from': deployer});
+    vaultSavings.pause({'from': deployer})
     assert vaultSavings.paused() == True
     with brownie.reverts():
         user_balance_before = token.balanceOf(regular_user)
@@ -129,7 +129,7 @@ def test_deposit_unpause_vault_reverts(token, vault, vaultSavings, deployer, reg
 
 def test_pause_vault_reverts(vaultSavings, vault, regular_user):
     with brownie.reverts():
-        vaultSavings.pause({'from': regular_user});
+        vaultSavings.pause({'from': regular_user})
 
 
 
