@@ -8,8 +8,10 @@
     "scripts": {
         "compile": "brownie compile --all",
         "clone-packages": "sh ./security/clone-packages.sh",
-        "deploy:rinkeby": "brownie run deploy_vault_savings.py --network rinkeby",
-        "deploy:dev": "brownie run deploy_vault_savings.py",
+        "deploy:rinkebyV1": "brownie run deploy_vault_savingsV1.py --network rinkeby",
+        "deploy:devV1": "brownie run deploy_vault_savingsV1.py",
+        "deploy:rinkebyV2": "brownie run deploy_vault_savingsV2.py --network rinkeby",
+        "deploy:devV2": "brownie run deploy_vault_savingsV2.py",
         "ganache": "npx ganache-cli --gasLimit 0xfffffffffff -e 100000000 --port 8545",
         "generate-abi": "npx truffle-abi -o ./abi",
         "generate-artifacts": "npm run compile && npm run generate-abi",
