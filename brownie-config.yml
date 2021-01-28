@@ -11,7 +11,8 @@ networks:
     cmd_settings:
       port: 8545
       gas_limit: 6721975
-      accounts: 10
+      accounts: 500
+
   rinkeby:
     gas_limit: max
 
