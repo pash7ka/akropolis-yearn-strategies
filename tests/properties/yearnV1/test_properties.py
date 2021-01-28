@@ -178,4 +178,138 @@ def test_deposit_array_with_failed_vault(register_vault, token, test_vault, vaul
 
     with brownie.reverts():
         vaultSavings.deposit['address[],uint[]']([test_vault], [DEPOSIT_VALUE], {'from': user})
+
+
+
+@given(
+    user=strategy('address', length=10),
+    user2=strategy('address', length=10)
+)
+
+@settings(max_examples=50)
+
+def test_withdraw(register_vault, token, vault, vaultSavings, user, user2, deployer):
+    
+    if (user != user2):
+        token.transfer(user, DEPOSIT_VALUE,  {"from": deployer})
+        token.transfer(user2, DEPOSIT_VALUE,  {"from": deployer})
+
+        user_balance_before = token.balanceOf(user) #2000
+        user2_balance_before = token.balanceOf(user2) #4000
+
+        vault_user_balance_before = vault.balanceOf(user)
+        vault_user2_balance_before = vault.balanceOf(user2)
+
+        # Initial deposits
+
+        token.approve(vaultSavings.address, DEPOSIT_VALUE, {'from': user})
+        vaultSavings.deposit['address,uint'].transact(vault.address, DEPOSIT_VALUE, {'from': user})
+
+        token.approve(vaultSavings.address, DEPOSIT_VALUE, {'from': user2})
+        vaultSavings.deposit['address,uint'].transact(vault.address, DEPOSIT_VALUE, {'from': user2})
+
+
+        assert token.balanceOf(user)+DEPOSIT_VALUE == user_balance_before
+        assert token.balanceOf(user2)+DEPOSIT_VALUE == user2_balance_before
+
+        # Withdraw
+        vault.approve(vaultSavings.address, vault.balanceOf(user), {'from': user})
+        vaultSavings.withdraw['address,uint'].transact(vault.address, vault.balanceOf(user), {'from': user})
+
+        vault.approve(vaultSavings.address, vault.balanceOf(user2), {'from': user2})
+        vaultSavings.withdraw['address,uint'].transact(vault.address, vault.balanceOf(user2), {'from': user2})
+
+
+        # Nothing left on vaultSavings
+        assert vault.balanceOf(vaultSavings.address) == 0
+        assert token.balanceOf(vaultSavings.address) == 0
+
+        user_balance_after = token.balanceOf(user)
+        user2_balance_after = token.balanceOf(user2)
+
+        vault_user_balance_after = vault.balanceOf(user)
+        vault_user2_balance_after = vault.balanceOf(user2)
+
+        assert vault_user_balance_after == 0
+        assert vault_user2_balance_after == 0
+
+        if (vault_user_balance_before == 0):
+            assert user_balance_before == user_balance_after
+        else:
+            assert user_balance_after == user_balance_before+DEPOSIT_VALUE
+        
+       
+        if (vault_user2_balance_before == 0):
+            assert user2_balance_before == user2_balance_after
+        else:
+            assert user2_balance_after == user2_balance_before+DEPOSIT_VALUE
+    else: 
+        pass
+
+
+@given(
+    user=strategy('address', length=10),
+    user2=strategy('address', length=10)
+)
+
+@settings(max_examples=50)
+
+def test_withdraw_array(register_vault, token, vault, vaultSavings, user, user2, deployer):
+    
+    if (user != user2):
+        token.transfer(user, DEPOSIT_VALUE,  {"from": deployer})
+        token.transfer(user2, DEPOSIT_VALUE,  {"from": deployer})
+
+        user_balance_before = token.balanceOf(user) #2000
+        user2_balance_before = token.balanceOf(user2) #4000
+
+        vault_user_balance_before = vault.balanceOf(user)
+        vault_user2_balance_before = vault.balanceOf(user2)
+
+        # Initial deposits
+
+        token.approve(vaultSavings.address, DEPOSIT_VALUE, {'from': user})
+        vaultSavings.deposit['address[],uint[]'].transact([vault.address], [DEPOSIT_VALUE], {'from': user})
+
+        token.approve(vaultSavings.address, DEPOSIT_VALUE, {'from': user2})
+        vaultSavings.deposit['address[],uint[]'].transact([vault.address], [DEPOSIT_VALUE], {'from': user2})
+
+
+        assert token.balanceOf(user)+DEPOSIT_VALUE == user_balance_before
+        assert token.balanceOf(user2)+DEPOSIT_VALUE == user2_balance_before
+
+        # Withdraw
+        vault.approve(vaultSavings.address, vault.balanceOf(user), {'from': user})
+        vaultSavings.withdraw['address[],uint[]'].transact([vault.address], [vault.balanceOf(user)], {'from': user})
+
+        vault.approve(vaultSavings.address, vault.balanceOf(user2), {'from': user2})
+        vaultSavings.withdraw['address[],uint[]'].transact([vault.address], [vault.balanceOf(user2)], {'from': user2})
+
+
+        # Nothing left on vaultSavings
+        assert vault.balanceOf(vaultSavings.address) == 0
+        assert token.balanceOf(vaultSavings.address) == 0
+
+        user_balance_after = token.balanceOf(user)
+        user2_balance_after = token.balanceOf(user2)
+
+        vault_user_balance_after = vault.balanceOf(user)
+        vault_user2_balance_after = vault.balanceOf(user2)
+
+        assert vault_user_balance_after == 0
+        assert vault_user2_balance_after == 0
+
+        if (vault_user_balance_before == 0):
+            assert user_balance_before == user_balance_after
+        else:
+            assert user_balance_after == user_balance_before+DEPOSIT_VALUE
+        
+       
+        if (vault_user2_balance_before == 0):
+            assert user2_balance_before == user2_balance_after
+        else:
+            assert user2_balance_after == user2_balance_before+DEPOSIT_VALUE
+    else: 
+        pass
+
         
