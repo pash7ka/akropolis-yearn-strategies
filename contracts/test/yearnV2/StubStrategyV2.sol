@@ -14,7 +14,7 @@ import "@openzeppelin/contracts/utils/Address.sol";
 import "@openzeppelin/contracts/token/ERC20/SafeERC20.sol";
 import "../../../interfaces/IERC20Mintable.sol";
 
-contract StubStrategy is BaseStrategy {
+contract StubStrategyV2 is BaseStrategy {
     using SafeERC20 for IERC20;
     using Address for address;
     using SafeMath for uint256;

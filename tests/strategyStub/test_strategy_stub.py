@@ -33,8 +33,8 @@ def vault(deployer, token, rewards, TestVaultV2):
     yield vault
 
 @pytest.fixture
-def strategy(strategist, deployer, vault, token, investment, StubStrategy):
-    strategy = strategist.deploy(StubStrategy, vault, investment, STUB_YIELD)
+def strategy(strategist, deployer, vault, token, investment, StubStrategyV2):
+    strategy = strategist.deploy(StubStrategyV2, vault, investment, STUB_YIELD)
     token.approve(strategy, 10**18, {"from":investment})
     strategy.setKeeper(strategist, {"from": strategist})
 
