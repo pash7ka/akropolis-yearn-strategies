@@ -57,7 +57,8 @@ contract VaultSavings is IVaultSavings, OwnableUpgradeable, ReentrancyGuardUpgra
     function _deposit(address _vault, uint256 _amount) internal returns(uint256 lpAmount) {
         //check vault
         require(isVaultRegistered(_vault), "Vault is not Registered");
-
+        require(isVaultActive(_vault),"Vault is not Active");
+        
         address baseToken = IVault(_vault).token();
      
         //transfer token if it is allowed to contract
@@ -92,6 +93,7 @@ contract VaultSavings is IVaultSavings, OwnableUpgradeable, ReentrancyGuardUpgra
 
     function _withdraw(address _vault, uint256 _amount) internal returns(uint256 baseAmount) {
         require(isVaultRegistered(_vault), "Vault is not Registered");
+        require(isVaultActive(_vault),"Vault is not Active");
         //transfer LP Token if it is allowed to contract
         IERC20Upgradeable(_vault).safeTransferFrom(msg.sender, address(this), _amount);
 
