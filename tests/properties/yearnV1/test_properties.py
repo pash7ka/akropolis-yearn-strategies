@@ -382,3 +382,42 @@ def test_withdraw_deactivated_vault_reverts(token, vault, vaultSavings, deployer
         vaultSavings.withdraw['address[],uint[]'].transact([vault.address], [DEPOSIT_VALUE], {'from': user})
 
     vaultSavings.activateVault(vault.address, {'from': deployer})
+
+
+
+@given(
+    user=strategy('address', length=10)
+)
+@settings(max_examples=50)
+def test_activated_vault_reverts(token, vault, vaultSavings, deployer, user):
+   
+    with brownie.reverts():
+        vaultSavings.activateVault(vault.address, {'from': user})
+
+    vaultSavings.activateVault(vault.address, {'from': deployer})
+
+
+@given(
+    user=strategy('address', length=10)
+)
+@settings(max_examples=50)
+def test_deactivated_vault_reverts(token, vault, vaultSavings, deployer, user):
+   
+    with brownie.reverts():
+        vaultSavings.deactivateVault(vault.address, {'from': user})
+
+    vaultSavings.activateVault(vault.address, {'from': deployer})
+
+
+@given(
+    user=strategy('address', length=10)
+)
+@settings(max_examples=50)
+def test_owner_not_changed(token, vault, vaultSavings, deployer, user):
+    token.transfer(user, DEPOSIT_VALUE,  {"from": deployer})
+    token.approve(vaultSavings.address, DEPOSIT_VALUE, {'from': user})
+    vault.approve(vaultSavings.address, DEPOSIT_VALUE, {'from': user})
+    vaultSavings.deposit['address[],uint[]'].transact([vault.address], [DEPOSIT_VALUE], {'from': user})
+    vaultSavings.withdraw['address[],uint[]'].transact([vault.address], [DEPOSIT_VALUE], {'from': user})
+
+    assert vaultSavings.owner() == deployer
