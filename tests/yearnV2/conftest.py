@@ -3,8 +3,7 @@ from brownie import accounts
 import sys
 
 from utils.deploy_helpers import deploy_proxy, deploy_admin
-
-TOTAL_TOKENS = 10000000
+from constantsV2 import *
 
 @pytest.fixture(scope="module")
 def deployer():
@@ -57,7 +56,7 @@ def vault(deployer, rewards, token, controller, TestVaultV2):
 
 @pytest.fixture(scope="module")
 def strategy(strategist, deployer, vault, token, investment, StubStrategyV2):
-    strategy = strategist.deploy(StubStrategyV2, vault, investment, 200)
+    strategy = strategist.deploy(StubStrategyV2, vault, investment, STUB_YIELD)
     token.approve(strategy, 10**18, {"from":investment})
     strategy.setKeeper(strategist, {"from": strategist})
 
@@ -84,4 +83,31 @@ def vaultSavings(deployer, proxy_admin, VaultSavingsV2):
     yield vaultSavingsImplFromProxy
 
 
+@pytest.fixture(scope="module")
+def register_vault_in_system(deployer, governance, token, vault, strategy, controller, registry):
+    controller.setVault(token.address, vault.address, {'from': deployer})
+    controller.approveStrategy(token.address, strategy.address, {'from': deployer})
+    controller.setStrategy(token.address, strategy.address, {'from': deployer})
+
+    assert registry.vaults(token.address, 0) == NULL_ADDRESS
+    registry.newRelease(vault.address, {'from': deployer})
+    assert registry.vaults(token.address, 0) == vault.address
     
+    vault.addStrategy(strategy, STRAT_DEBT_RATIO, STRAT_OPERATION_LIMIT, STRAT_OPERATION_FEE, {"from": governance})
+
+
+@pytest.fixture(scope="module")
+def register_vault(register_vault_in_system, deployer, token, vault, vaultSavings):
+
+    vaultSavings.registerVault(vault.address, {'from': deployer})
+    assert vaultSavings.isVaultRegistered(vault.address) == True
+    assert vaultSavings.isVaultActive(vault.address) == True
+    assert vaultSavings.isBaseTokenForVault(vault.address, token.address) == True
+
+    supported_vaults = vaultSavings.supportedVaults()
+    assert len(supported_vaults) == 1
+    assert supported_vaults[0] == vault.address
+    
+    active_vaults = vaultSavings.activeVaults()
+    assert len(active_vaults) == 1
+    assert active_vaults[0] == vault.address
