@@ -53,7 +53,7 @@
       },
       {
         "indexed": false,
-        "name": "debtLimit",
+        "name": "debtRatio",
         "type": "uint256"
       },
       {
@@ -110,7 +110,7 @@
       },
       {
         "indexed": false,
-        "name": "debtLimit",
+        "name": "debtRatio",
         "type": "uint256"
       }
     ],
@@ -118,34 +118,291 @@
     "type": "event"
   },
   {
+    "anonymous": false,
     "inputs": [
       {
-        "name": "_token",
+        "indexed": false,
+        "name": "governance",
+        "type": "address"
+      }
+    ],
+    "name": "UpdateGovernance",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": false,
+        "name": "management",
+        "type": "address"
+      }
+    ],
+    "name": "UpdateManagement",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": false,
+        "name": "guestList",
+        "type": "address"
+      }
+    ],
+    "name": "UpdateGuestList",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": false,
+        "name": "rewards",
+        "type": "address"
+      }
+    ],
+    "name": "UpdateRewards",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": false,
+        "name": "depositLimit",
+        "type": "uint256"
+      }
+    ],
+    "name": "UpdateDepositLimit",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": false,
+        "name": "performanceFee",
+        "type": "uint256"
+      }
+    ],
+    "name": "UpdatePerformanceFee",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": false,
+        "name": "managementFee",
+        "type": "uint256"
+      }
+    ],
+    "name": "UpdateManagementFee",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": false,
+        "name": "guardian",
+        "type": "address"
+      }
+    ],
+    "name": "UpdateGuardian",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": false,
+        "name": "active",
+        "type": "bool"
+      }
+    ],
+    "name": "EmergencyShutdown",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": false,
+        "name": "queue",
+        "type": "address[20]"
+      }
+    ],
+    "name": "UpdateWithdrawalQueue",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "name": "strategy",
         "type": "address"
       },
       {
-        "name": "_governance",
+        "indexed": false,
+        "name": "debtRatio",
+        "type": "uint256"
+      }
+    ],
+    "name": "StrategyUpdateDebtRatio",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "name": "strategy",
         "type": "address"
       },
       {
-        "name": "_rewards",
+        "indexed": false,
+        "name": "rateLimit",
+        "type": "uint256"
+      }
+    ],
+    "name": "StrategyUpdateRateLimit",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "name": "strategy",
         "type": "address"
       },
       {
-        "name": "_nameOverride",
+        "indexed": false,
+        "name": "performanceFee",
+        "type": "uint256"
+      }
+    ],
+    "name": "StrategyUpdatePerformanceFee",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "name": "oldVersion",
+        "type": "address"
+      },
+      {
+        "indexed": true,
+        "name": "newVersion",
+        "type": "address"
+      }
+    ],
+    "name": "StrategyMigrated",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "name": "strategy",
+        "type": "address"
+      }
+    ],
+    "name": "StrategyRevoked",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "name": "strategy",
+        "type": "address"
+      }
+    ],
+    "name": "StrategyRemovedFromQueue",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "name": "strategy",
+        "type": "address"
+      }
+    ],
+    "name": "StrategyAddedToQueue",
+    "type": "event"
+  },
+  {
+    "inputs": [
+      {
+        "name": "token",
+        "type": "address"
+      },
+      {
+        "name": "governance",
+        "type": "address"
+      },
+      {
+        "name": "rewards",
+        "type": "address"
+      },
+      {
+        "name": "nameOverride",
         "type": "string"
       },
       {
-        "name": "_symbolOverride",
+        "name": "symbolOverride",
         "type": "string"
       }
     ],
+    "name": "initialize",
     "outputs": [],
     "stateMutability": "nonpayable",
-    "type": "constructor"
+    "type": "function"
   },
   {
-    "gas": 4489,
+    "inputs": [
+      {
+        "name": "token",
+        "type": "address"
+      },
+      {
+        "name": "governance",
+        "type": "address"
+      },
+      {
+        "name": "rewards",
+        "type": "address"
+      },
+      {
+        "name": "nameOverride",
+        "type": "string"
+      },
+      {
+        "name": "symbolOverride",
+        "type": "string"
+      },
+      {
+        "name": "guardian",
+        "type": "address"
+      }
+    ],
+    "name": "initialize",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "gas": 4519,
     "inputs": [],
     "name": "apiVersion",
     "outputs": [
@@ -158,10 +415,10 @@
     "type": "function"
   },
   {
-    "gas": 106987,
+    "gas": 107017,
     "inputs": [
       {
-        "name": "_name",
+        "name": "name",
         "type": "string"
       }
     ],
@@ -171,10 +428,10 @@
     "type": "function"
   },
   {
-    "gas": 71837,
+    "gas": 71867,
     "inputs": [
       {
-        "name": "_symbol",
+        "name": "symbol",
         "type": "string"
       }
     ],
@@ -184,10 +441,10 @@
     "type": "function"
   },
   {
-    "gas": 36308,
+    "gas": 36338,
     "inputs": [
       {
-        "name": "_governance",
+        "name": "governance",
         "type": "address"
       }
     ],
@@ -197,7 +454,7 @@
     "type": "function"
   },
   {
-    "gas": 36234,
+    "gas": 37610,
     "inputs": [],
     "name": "acceptGovernance",
     "outputs": [],
@@ -205,10 +462,23 @@
     "type": "function"
   },
   {
-    "gas": 36368,
+    "gas": 37748,
     "inputs": [
       {
-        "name": "_guestList",
+        "name": "management",
+        "type": "address"
+      }
+    ],
+    "name": "setManagement",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "gas": 37778,
+    "inputs": [
+      {
+        "name": "guestList",
         "type": "address"
       }
     ],
@@ -218,10 +488,10 @@
     "type": "function"
   },
   {
-    "gas": 36398,
+    "gas": 37808,
     "inputs": [
       {
-        "name": "_rewards",
+        "name": "rewards",
         "type": "address"
       }
     ],
@@ -231,10 +501,10 @@
     "type": "function"
   },
   {
-    "gas": 36328,
+    "gas": 37738,
     "inputs": [
       {
-        "name": "_limit",
+        "name": "limit",
         "type": "uint256"
       }
     ],
@@ -244,10 +514,10 @@
     "type": "function"
   },
   {
-    "gas": 36358,
+    "gas": 37872,
     "inputs": [
       {
-        "name": "_fee",
+        "name": "fee",
         "type": "uint256"
       }
     ],
@@ -257,10 +527,10 @@
     "type": "function"
   },
   {
-    "gas": 36388,
+    "gas": 37902,
     "inputs": [
       {
-        "name": "_fee",
+        "name": "fee",
         "type": "uint256"
       }
     ],
@@ -270,10 +540,10 @@
     "type": "function"
   },
   {
-    "gas": 37745,
+    "gas": 39146,
     "inputs": [
       {
-        "name": "_guardian",
+        "name": "guardian",
         "type": "address"
       }
     ],
@@ -283,10 +553,10 @@
     "type": "function"
   },
   {
-    "gas": 37775,
+    "gas": 39217,
     "inputs": [
       {
-        "name": "_active",
+        "name": "active",
         "type": "bool"
       }
     ],
@@ -296,10 +566,10 @@
     "type": "function"
   },
   {
-    "gas": 750044,
+    "gas": 763893,
     "inputs": [
       {
-        "name": "_queue",
+        "name": "queue",
         "type": "address[20]"
       }
     ],
@@ -309,14 +579,14 @@
     "type": "function"
   },
   {
-    "gas": 76619,
+    "gas": 76733,
     "inputs": [
       {
-        "name": "_to",
+        "name": "receiver",
         "type": "address"
       },
       {
-        "name": "_value",
+        "name": "amount",
         "type": "uint256"
       }
     ],
@@ -331,18 +601,18 @@
     "type": "function"
   },
   {
-    "gas": 116382,
+    "gas": 116496,
     "inputs": [
       {
-        "name": "_from",
+        "name": "sender",
         "type": "address"
       },
       {
-        "name": "_to",
+        "name": "receiver",
         "type": "address"
       },
       {
-        "name": "_value",
+        "name": "amount",
         "type": "uint256"
       }
     ],
@@ -357,14 +627,14 @@
     "type": "function"
   },
   {
-    "gas": 38184,
+    "gas": 38244,
     "inputs": [
       {
-        "name": "_spender",
+        "name": "spender",
         "type": "address"
       },
       {
-        "name": "_value",
+        "name": "amount",
         "type": "uint256"
       }
     ],
@@ -379,14 +649,14 @@
     "type": "function"
   },
   {
-    "gas": 40225,
+    "gas": 40285,
     "inputs": [
       {
-        "name": "_spender",
+        "name": "spender",
         "type": "address"
       },
       {
-        "name": "_value",
+        "name": "amount",
         "type": "uint256"
       }
     ],
@@ -401,14 +671,14 @@
     "type": "function"
   },
   {
-    "gas": 40249,
+    "gas": 40309,
     "inputs": [
       {
-        "name": "_spender",
+        "name": "spender",
         "type": "address"
       },
       {
-        "name": "_value",
+        "name": "amount",
         "type": "uint256"
       }
     ],
@@ -423,7 +693,7 @@
     "type": "function"
   },
   {
-    "gas": 81177,
+    "gas": 81237,
     "inputs": [
       {
         "name": "owner",
@@ -457,45 +727,9 @@
     "type": "function"
   },
   {
-    "gas": 4003,
+    "gas": 4123,
     "inputs": [],
     "name": "totalAssets",
-    "outputs": [
-      {
-        "name": "",
-        "type": "uint256"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "gas": 2508,
-    "inputs": [
-      {
-        "name": "_strategy",
-        "type": "address"
-      }
-    ],
-    "name": "balanceSheetOfStrategy",
-    "outputs": [
-      {
-        "name": "",
-        "type": "uint256"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "gas": 77066,
-    "inputs": [
-      {
-        "name": "_strategies",
-        "type": "address[40]"
-      }
-    ],
-    "name": "totalBalanceSheet",
     "outputs": [
       {
         "name": "",
@@ -541,7 +775,7 @@
         "type": "uint256"
       },
       {
-        "name": "_recipient",
+        "name": "recipient",
         "type": "address"
       }
     ],
@@ -556,7 +790,7 @@
     "type": "function"
   },
   {
-    "gas": 359791,
+    "gas": 364171,
     "inputs": [],
     "name": "maxAvailableShares",
     "outputs": [
@@ -583,7 +817,7 @@
   {
     "inputs": [
       {
-        "name": "_shares",
+        "name": "maxShares",
         "type": "uint256"
       }
     ],
@@ -600,11 +834,11 @@
   {
     "inputs": [
       {
-        "name": "_shares",
+        "name": "maxShares",
         "type": "uint256"
       },
       {
-        "name": "_recipient",
+        "name": "recipient",
         "type": "address"
       }
     ],
@@ -619,7 +853,32 @@
     "type": "function"
   },
   {
-    "gas": 12352,
+    "inputs": [
+      {
+        "name": "maxShares",
+        "type": "uint256"
+      },
+      {
+        "name": "recipient",
+        "type": "address"
+      },
+      {
+        "name": "maxLoss",
+        "type": "uint256"
+      }
+    ],
+    "name": "withdraw",
+    "outputs": [
+      {
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "gas": 12412,
     "inputs": [],
     "name": "pricePerShare",
     "outputs": [
@@ -632,22 +891,22 @@
     "type": "function"
   },
   {
-    "gas": 1445752,
+    "gas": 1450351,
     "inputs": [
       {
-        "name": "_strategy",
+        "name": "strategy",
         "type": "address"
       },
       {
-        "name": "_debtLimit",
+        "name": "debtRatio",
         "type": "uint256"
       },
       {
-        "name": "_rateLimit",
+        "name": "rateLimit",
         "type": "uint256"
       },
       {
-        "name": "_performanceFee",
+        "name": "performanceFee",
         "type": "uint256"
       }
     ],
@@ -657,31 +916,31 @@
     "type": "function"
   },
   {
-    "gas": 111496,
+    "gas": 115316,
     "inputs": [
       {
-        "name": "_strategy",
+        "name": "strategy",
         "type": "address"
       },
       {
-        "name": "_debtLimit",
+        "name": "debtRatio",
         "type": "uint256"
       }
     ],
-    "name": "updateStrategyDebtLimit",
+    "name": "updateStrategyDebtRatio",
     "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"
   },
   {
-    "gas": 38548,
+    "gas": 41467,
     "inputs": [
       {
-        "name": "_strategy",
+        "name": "strategy",
         "type": "address"
       },
       {
-        "name": "_rateLimit",
+        "name": "rateLimit",
         "type": "uint256"
       }
     ],
@@ -691,14 +950,14 @@
     "type": "function"
   },
   {
-    "gas": 38572,
+    "gas": 41344,
     "inputs": [
       {
-        "name": "_strategy",
+        "name": "strategy",
         "type": "address"
       },
       {
-        "name": "_performanceFee",
+        "name": "performanceFee",
         "type": "uint256"
       }
     ],
@@ -708,14 +967,14 @@
     "type": "function"
   },
   {
-    "gas": 1178418,
+    "gas": 1105801,
     "inputs": [
       {
-        "name": "_oldVersion",
+        "name": "oldVersion",
         "type": "address"
       },
       {
-        "name": "_newVersion",
+        "name": "newVersion",
         "type": "address"
       }
     ],
@@ -734,7 +993,7 @@
   {
     "inputs": [
       {
-        "name": "_strategy",
+        "name": "strategy",
         "type": "address"
       }
     ],
@@ -744,10 +1003,10 @@
     "type": "function"
   },
   {
-    "gas": 1194595,
+    "gas": 1196920,
     "inputs": [
       {
-        "name": "_strategy",
+        "name": "strategy",
         "type": "address"
       }
     ],
@@ -757,10 +1016,10 @@
     "type": "function"
   },
   {
-    "gas": 23068248,
+    "gas": 23091666,
     "inputs": [
       {
-        "name": "_strategy",
+        "name": "strategy",
         "type": "address"
       }
     ],
@@ -784,7 +1043,7 @@
   {
     "inputs": [
       {
-        "name": "_strategy",
+        "name": "strategy",
         "type": "address"
       }
     ],
@@ -813,7 +1072,7 @@
   {
     "inputs": [
       {
-        "name": "_strategy",
+        "name": "strategy",
         "type": "address"
       }
     ],
@@ -828,7 +1087,7 @@
     "type": "function"
   },
   {
-    "gas": 9688,
+    "gas": 9808,
     "inputs": [],
     "name": "availableDepositLimit",
     "outputs": [
@@ -855,7 +1114,7 @@
   {
     "inputs": [
       {
-        "name": "_strategy",
+        "name": "strategy",
         "type": "address"
       }
     ],
@@ -870,14 +1129,14 @@
     "type": "function"
   },
   {
-    "gas": 919553,
+    "gas": 937520,
     "inputs": [
       {
-        "name": "_gain",
+        "name": "gain",
         "type": "uint256"
       },
       {
-        "name": "_loss",
+        "name": "loss",
         "type": "uint256"
       },
       {
@@ -898,7 +1157,7 @@
   {
     "inputs": [
       {
-        "name": "_token",
+        "name": "token",
         "type": "address"
       }
     ],
@@ -910,11 +1169,11 @@
   {
     "inputs": [
       {
-        "name": "_token",
+        "name": "token",
         "type": "address"
       },
       {
-        "name": "_value",
+        "name": "amount",
         "type": "uint256"
       }
     ],
@@ -1044,7 +1303,7 @@
   {
     "gas": 2891,
     "inputs": [],
-    "name": "guardian",
+    "name": "management",
     "outputs": [
       {
         "name": "",
@@ -1057,6 +1316,19 @@
   {
     "gas": 2921,
     "inputs": [],
+    "name": "guardian",
+    "outputs": [
+      {
+        "name": "",
+        "type": "address"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "gas": 2951,
+    "inputs": [],
     "name": "guestList",
     "outputs": [
       {
@@ -1068,7 +1340,7 @@
     "type": "function"
   },
   {
-    "gas": 10292,
+    "gas": 10322,
     "inputs": [
       {
         "name": "arg0",
@@ -1086,7 +1358,7 @@
         "type": "uint256"
       },
       {
-        "name": "debtLimit",
+        "name": "debtRatio",
         "type": "uint256"
       },
       {
@@ -1114,7 +1386,7 @@
     "type": "function"
   },
   {
-    "gas": 3090,
+    "gas": 3120,
     "inputs": [
       {
         "name": "arg0",
@@ -1132,7 +1404,7 @@
     "type": "function"
   },
   {
-    "gas": 3011,
+    "gas": 3041,
     "inputs": [],
     "name": "emergencyShutdown",
     "outputs": [
@@ -1145,7 +1417,7 @@
     "type": "function"
   },
   {
-    "gas": 3041,
+    "gas": 3071,
     "inputs": [],
     "name": "depositLimit",
     "outputs": [
@@ -1158,22 +1430,9 @@
     "type": "function"
   },
   {
-    "gas": 3071,
-    "inputs": [],
-    "name": "debtLimit",
-    "outputs": [
-      {
-        "name": "",
-        "type": "uint256"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
     "gas": 3101,
     "inputs": [],
-    "name": "totalDebt",
+    "name": "debtRatio",
     "outputs": [
       {
         "name": "",
@@ -1186,7 +1445,7 @@
   {
     "gas": 3131,
     "inputs": [],
-    "name": "lastReport",
+    "name": "totalDebt",
     "outputs": [
       {
         "name": "",
@@ -1199,7 +1458,7 @@
   {
     "gas": 3161,
     "inputs": [],
-    "name": "activation",
+    "name": "lastReport",
     "outputs": [
       {
         "name": "",
@@ -1212,6 +1471,19 @@
   {
     "gas": 3191,
     "inputs": [],
+    "name": "activation",
+    "outputs": [
+      {
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "gas": 3221,
+    "inputs": [],
     "name": "rewards",
     "outputs": [
       {
@@ -1223,7 +1495,7 @@
     "type": "function"
   },
   {
-    "gas": 3221,
+    "gas": 3251,
     "inputs": [],
     "name": "managementFee",
     "outputs": [
@@ -1236,7 +1508,7 @@
     "type": "function"
   },
   {
-    "gas": 3251,
+    "gas": 3281,
     "inputs": [],
     "name": "performanceFee",
     "outputs": [
@@ -1249,7 +1521,7 @@
     "type": "function"
   },
   {
-    "gas": 3496,
+    "gas": 3526,
     "inputs": [
       {
         "name": "arg0",
@@ -1267,7 +1539,7 @@
     "type": "function"
   },
   {
-    "gas": 3311,
+    "gas": 3341,
     "inputs": [],
     "name": "DOMAIN_SEPARATOR",
     "outputs": [

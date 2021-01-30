@@ -62,11 +62,11 @@ Create *.env* file with *DEPLOYER_PRIVATE_KEY* filled up.
 For the local deployment run the command:
 
 ```bash
-npm run deploy:dev
+npm run deploy:devV1
 ```
 or 
 ```bash
-brownie run deploy_vault_savings.py
+brownie run deploy_vault_savingsV1.py
 ```
 
 For the *Rinkeby* deployment firstly export Infura id:
@@ -78,11 +78,11 @@ export WEB3_INFURA_PROJECT_ID=b20c30c9e04c4a6bb1cd728ff589a15e
 and run:
 
 ```bash
-npm run deploy:rinkeby
+npm run deploy:rinkebyV1
 ```
 or 
 ```bash
-brownie run deploy_vault_savings.py --network rinkeby
+brownie run deploy_vault_savingsV1.py --network rinkeby
 ```
 
 

@@ -2,9 +2,9 @@
 
 pragma solidity ^0.6.12;
 
-import "@openzeppelinV3/contracts/math/SafeMath.sol";
-import "@openzeppelinV3/contracts/utils/Address.sol";
-import "@openzeppelinV3/contracts/utils/EnumerableSet.sol";
+import "@openzeppelin/contracts/math/SafeMath.sol";
+import "@openzeppelin/contracts/utils/Address.sol";
+import "@openzeppelin/contracts/utils/EnumerableSet.sol";
 
 import "../../../interfaces/yearnV1/IController.sol";
 import "../../../interfaces/yearnV1/IStrategy.sol";

@@ -2,7 +2,7 @@
 
 pragma solidity ^0.6.12;
 
-import "@openzeppelinV3/contracts/token/ERC20/IERC20.sol";
+import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 
 contract YTestStrategy {
     IERC20 public _want;

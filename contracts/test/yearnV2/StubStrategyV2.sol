@@ -8,13 +8,13 @@ import {
     BaseStrategy,
     StrategyParams
 } from "@yearnvaults/contracts/BaseStrategy.sol";
-import "@openzeppelinV3/contracts/token/ERC20/IERC20.sol";
-import "@openzeppelinV3/contracts/math/SafeMath.sol";
-import "@openzeppelinV3/contracts/utils/Address.sol";
-import "@openzeppelinV3/contracts/token/ERC20/SafeERC20.sol";
-import "../../interfaces/IERC20Mintable.sol";
+import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+import "@openzeppelin/contracts/math/SafeMath.sol";
+import "@openzeppelin/contracts/utils/Address.sol";
+import "@openzeppelin/contracts/token/ERC20/SafeERC20.sol";
+import "../../../interfaces/IERC20Mintable.sol";
 
-contract StubStrategy is BaseStrategy {
+contract StubStrategyV2 is BaseStrategy {
     using SafeERC20 for IERC20;
     using Address for address;
     using SafeMath for uint256;
@@ -23,23 +23,29 @@ contract StubStrategy is BaseStrategy {
     uint256 dumbYield;
     bool countProfit;
     uint256 uncountedProfit;
+    string _name;
 
     constructor(address _vault, address _investmentAddr, uint256 _dumbYield) public BaseStrategy(_vault) {
-        minReportDelay = 0;
+        maxReportDelay = 0;
         investmentAddr = _investmentAddr;
         dumbYield = _dumbYield;
+        _name = "StubCurveStrategy";
     }
 
 
     //Overrides for BaseStrategy
-    function name() external override pure returns (string memory) {
-        return "StubCurveStrategy";
+    function name() external override view returns (string memory) {
+        return _name;
     }
 
     //Analog of normalizedBalance()
     function estimatedTotalAssets() public override view returns (uint256) {
         //want - token registered in strategy, comes from the Vault
         return want.balanceOf(address(this)).add(want.balanceOf(investmentAddr));
+    }
+
+    function delegatedAssets() external override view returns (uint256) {
+        return 0;
     }
 
     //Return some yield (profit) to the Vault or repay the debt (by demand)
@@ -77,37 +83,19 @@ contract StubStrategy is BaseStrategy {
     }
 
     //Return funds to the strategy contract ready to be withdrawn by Vault
-    function exitPosition(uint256 _debtOutstanding) internal override
-        returns (uint256 _profit, uint256 _loss, uint256 _debtPayment)
-    {
-        //Return funds from the investment address
-        uint256 investedFunds = want.balanceOf(investmentAddr);
-        want.transferFrom(investmentAddr, address(this), investedFunds);
-
-        uint256 currentBalance = want.balanceOf(address(this));
-
-        _debtPayment = currentBalance;
-        _profit = uncountedProfit;
-        uncountedProfit = 0;
- 
-        want.approve(address(vault), currentBalance);
-    }
-
-    //Convert some funds into the Vault hosted token (wanted) by demand
-    function liquidatePosition(uint256 _amountNeeded)
-        internal
-        override
-        returns (uint256 _amountFreed)
+    function liquidatePosition(uint256 _amountNeeded) internal override 
+        returns (uint256 _liquidatedAmount, uint256 _loss)
     {
         if (_amountNeeded == 0) {
-            return 0;
+            return (0, 0);
         }
+
         uint256 balanceStrat = want.balanceOf(address(this));
         if (_amountNeeded > balanceStrat) {
             want.transferFrom(investmentAddr, address(this), _amountNeeded.sub(balanceStrat));
         }
-        _amountFreed = _amountNeeded;//Here fee should be subtracted
-
+        want.approve(address(vault), _amountNeeded);
+        _liquidatedAmount = _amountNeeded;//Here fee should be subtracted
     }
 
     //Migrate funds to another strategy
