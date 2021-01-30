@@ -15,6 +15,8 @@ interface IVaultV2 {
     function totalDebt() external view returns (uint256);
     function creditAvailable(address strategy) external view returns (uint256);
     function debtOutstanding(address strategy) external view returns (uint256);
+    
+    function emergencyShutdown() external view returns(bool);
 
     function token() external view returns (address);
     function governance() external view returns (address);
