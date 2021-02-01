@@ -1,7 +1,7 @@
 import os
 from dotenv import load_dotenv, find_dotenv
 from brownie import *
-#VaultSavings, yTestVault, TestERC20, YTestRegistry, YTestController, YTestStrategy, accounts, network, web3
+#VaultSavings, yTestVault, TestERC20, YTestRegistry, YTestStrategy, accounts, network, web3
 
 from utils.deploy_helpers import deploy_proxy, deploy_admin, get_proxy_admin, upgrade_proxy
 
@@ -30,10 +30,6 @@ def main():
     print(f"You are using: 'deployer' [{deployer.address}]")
     print(f"Proxy Admin at {proxy_admin.address}")
 
-    #Deploy controller
-    controller = deployer.deploy(YTestController, deployer.address)
-    print(f"Controller deployed at {controller.address}")
-
 
     # 1. 3Crv vault
     token_3Crv = deployer.deploy(PoolTokenV1_3Crv)
@@ -53,10 +49,6 @@ def main():
     strategy_3crv.setKeeper(deployer, {"from": deployer})
     print(f"Strategy deployed at {strategy_3crv.address}")
     
-    controller.setVault(token_3Crv.address, yVault_3Crv.address, {'from': deployer})
-    controller.approveStrategy(token_3Crv.address, strategy_3crv.address, {'from': deployer})
-    controller.setStrategy(token_3Crv.address, strategy_3crv.address, {'from': deployer})
-   
 
     #Deploy VaultSavings, Registry and add Vaults
     vaultSavingsImplFromProxy, vaultSavingsProxy, vaultSavingsImpl = deploy_proxy(deployer, proxy_admin, VaultSavingsV2)
