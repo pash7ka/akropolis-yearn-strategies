@@ -43,7 +43,7 @@ contract VaultSavingsV2 is IVaultSavings, OwnableUpgradeable, ReentrancyGuardUpg
 
     function deposit(address[] calldata _vaults, uint256[] calldata _amounts) external override nonReentrant whenNotPaused {
         require(_vaults.length == _amounts.length, "Size of arrays does not match");
-
+        
         for (uint256 i=0; i < _vaults.length; i++) {
             _deposit(_vaults[i], _amounts[i]);
         }
@@ -59,7 +59,7 @@ contract VaultSavingsV2 is IVaultSavings, OwnableUpgradeable, ReentrancyGuardUpg
         //check vault
         require(isVaultRegistered(_vault), "Vault is not Registered");
         require(isVaultActive(_vault),"Vault is not Active");
-
+        require(!IVaultV2(_vault).emergencyShutdown(), "Vault is emergency shutdown");
         address baseToken = IVaultV2(_vault).token();
      
         //transfer token if it is allowed to contract
@@ -96,6 +96,7 @@ contract VaultSavingsV2 is IVaultSavings, OwnableUpgradeable, ReentrancyGuardUpg
         require(_amount > 0, "Withdrawing zero amount");
         require(isVaultRegistered(_vault), "Vault is not Registered");
         require(isVaultActive(_vault),"Vault is not Active");
+        require(!IVaultV2(_vault).emergencyShutdown(), "Vault is emergency shutdown");
         //transfer LP Token if it is allowed to contract
         IERC20Upgradeable(_vault).safeTransferFrom(msg.sender, address(this), _amount);
 
