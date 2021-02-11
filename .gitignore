@@ -49,3 +49,20 @@ coverage.json
 
 # MacOS junk
 .DS_Store
+
+# Standard contracts
+AddressUpgradeable.json
+ContextUpgradeable.json
+IERC20Upgradeable.json
+Initializable.json
+OwnableUpgradeable.json
+PausableUpgradeable.json
+ReentrancyGuardUpgradeable.json
+SafeERC20Upgradeable.json
+SafeMathUpgradeable.json
+ERC20Detailed.json
+MinterRole.json
+Roles.json
+
+UpgradeTestNew.json
+UpgradeTestOld.json
