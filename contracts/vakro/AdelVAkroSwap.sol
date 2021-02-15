@@ -122,12 +122,11 @@ contract AdelVAkroSwap is Initializable, Context, Ownable {
      */
     function swapFromRewardAdel() public swapEnabled
     {
-        uint256 vAkroAmount = _adelAmount.mul(swapRate);
-        require(swapLiquidity >= vAkroAmount, "Not enough AKRO");
-
         IStakingPool(stakingPool).withdrawRewardForSwap(_msgSender(), adel);
 
         uint256 _adelAmount = IERC20(adel).balanceOf(address(this));
+        uint256 vAkroAmount = _adelAmount.mul(swapRate);
+        require(swapLiquidity >= vAkroAmount, "Not enough AKRO");
 
         require(_adelAmount != 0 && _adelAmount >= minAmountToSwap, "Not enough ADEL rewards");
         
