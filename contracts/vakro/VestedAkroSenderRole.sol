@@ -1,11 +1,11 @@
 // SPDX-License-Identifier: AGPL V3.0
 pragma solidity ^0.6.12;
 
-import "@openzeppelin/contracts/proxy/Initializable.sol";
-import "@openzeppelin/contracts/GSN/Context.sol";
+import "@ozUpgradesV3/contracts/GSN/ContextUpgradeable.sol";
+import "@ozUpgradesV3/contracts/proxy/Initializable.sol";
 import "./Roles.sol";
 
-contract VestedAkroSenderRole is Initializable, Context {
+contract VestedAkroSenderRole is Initializable, ContextUpgradeable {
     using Roles for Roles.Role;
 
     event SenderAdded(address indexed account);
@@ -14,6 +14,7 @@ contract VestedAkroSenderRole is Initializable, Context {
     Roles.Role private _senders;
 
     function initialize(address sender) public virtual initializer {
+        __Context_init_unchained();
         if (!isSender(sender)) {
             _addSender(sender);
         }

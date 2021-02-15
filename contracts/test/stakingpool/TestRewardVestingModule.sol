@@ -1,21 +1,20 @@
 // SPDX-License-Identifier: AGPL V3.0
 pragma solidity ^0.6.12;
 
-import "@openzeppelin/contracts/proxy/Initializable.sol";
-import "@openzeppelin/contracts/GSN/Context.sol";
-import "@openzeppelin/contracts/access/Ownable.sol";
+import "@ozUpgradesV3/contracts/access/OwnableUpgradeable.sol";
 
-import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
-import "@openzeppelin/contracts/token/ERC20/SafeERC20.sol";
-import "@openzeppelin/contracts/math/SafeMath.sol";
+import "@ozUpgradesV3/contracts/token/ERC20/IERC20Upgradeable.sol";
+import "@ozUpgradesV3/contracts/token/ERC20/SafeERC20Upgradeable.sol";
+import "@ozUpgradesV3/contracts/math/SafeMathUpgradeable.sol";
 
-contract TestRewardVestingModule is Initializable, Context, Ownable {
+
+contract TestRewardVestingModule is OwnableUpgradeable {
     event RewardTokenRegistered(address indexed protocol, address token);
     event EpochRewardAdded(address indexed protocol, address indexed token, uint256 epoch, uint256 amount);
     event RewardClaimed(address indexed protocol, address indexed token, uint256 claimPeriodStart, uint256 claimPeriodEnd, uint256 claimAmount);
 
-    using SafeERC20 for IERC20;
-    using SafeMath for uint256;
+    using SafeERC20Upgradeable for IERC20Upgradeable;
+    using SafeMathUpgradeable for uint256;
 
     struct Epoch {
         uint256 end;        // Timestamp of Epoch end
@@ -45,6 +44,7 @@ contract TestRewardVestingModule is Initializable, Context, Ownable {
 
 
     function initialize(address _pool) public initializer {
+        __Ownable_init();
         pool = _pool;
         rewardManager = _msgSender();
         defaultEpochLength = 7*24*60*60;
@@ -163,7 +163,7 @@ contract TestRewardVestingModule is Initializable, Context, Ownable {
                 break;
             }
         }
-        IERC20(token).safeTransfer(protocol, claimAmount);
+        IERC20Upgradeable(token).safeTransfer(protocol, claimAmount);
         emit RewardClaimed(protocol, token, previousClaim, ri.lastClaim, claimAmount);
     }
 
@@ -223,7 +223,7 @@ contract TestRewardVestingModule is Initializable, Context, Ownable {
             ep.amount = ep.amount.add(amount);
         }
         emit EpochRewardAdded(protocol, token, epoch, amount);
-        IERC20(token).safeTransferFrom(_msgSender(), address(this), amount);
+        IERC20Upgradeable(token).safeTransferFrom(_msgSender(), address(this), amount);
     }
 
 

@@ -1,12 +1,11 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.6.12;
 
-import "@openzeppelin/contracts/proxy/Initializable.sol";
-
-import "@openzeppelin/contracts/GSN/Context.sol";
+import "@ozUpgradesV3/contracts/GSN/ContextUpgradeable.sol";
+import "@ozUpgradesV3/contracts/proxy/Initializable.sol";
 import "./Roles.sol";
 
-contract MinterRole is Initializable, Context {
+contract MinterRole is Initializable, ContextUpgradeable {
     using Roles for Roles.Role;
 
     event MinterAdded(address indexed account);
@@ -15,6 +14,7 @@ contract MinterRole is Initializable, Context {
     Roles.Role private _minters;
 
     function initialize(address sender) public virtual initializer {
+        __Context_init_unchained();
         if (!isMinter(sender)) {
             _addMinter(sender);
         }

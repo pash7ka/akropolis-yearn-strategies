@@ -1,8 +1,9 @@
 // SPDX-License-Identifier: AGPL V3.0
 pragma solidity ^0.6.12; 
 
-import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
-import "@openzeppelin/contracts/math/SafeMath.sol";
+import "@ozUpgradesV3/contracts/math/SafeMathUpgradeable.sol";
+import "@ozUpgradesV3/contracts/token/ERC20/IERC20Upgradeable.sol";
+import "@ozUpgradesV3/contracts/token/ERC20/SafeERC20Upgradeable.sol";
 
 import "./TestRewardVestingModule.sol";
 import "./TestStakingPoolBase.sol";
@@ -12,8 +13,8 @@ contract TestStakingPool is TestStakingPoolBase {
     event RewardDistributionCreated(address token, uint256 amount, uint256 totalShares);
     event RewardWithdraw(address indexed user, address indexed rewardToken, uint256 amount);
 
-    using SafeERC20 for IERC20;
-    using SafeMath for uint256;
+    using SafeERC20Upgradeable for IERC20Upgradeable;
+    using SafeMathUpgradeable for uint256;
 
     struct RewardDistribution {
         uint256 totalShares;
@@ -114,7 +115,7 @@ contract TestStakingPool is TestStakingPoolBase {
         uri.nextDistribution[token] = rd.distributions.length;
         if(rwrds > 0){
             rewards[token].unclaimed = rewards[token].unclaimed.sub(rwrds);
-            IERC20(token).transfer(user, rwrds);
+            IERC20Upgradeable(token).transfer(user, rwrds);
             emit RewardWithdraw(user, token, rwrds);
         }
         return rwrds;
@@ -139,7 +140,7 @@ contract TestStakingPool is TestStakingPoolBase {
             if(rt == address(stakingToken)){
                 expectedBalance = expectedBalance.add(totalStaked());
             }
-            uint256 actualBalance = IERC20(rt).balanceOf(address(this));
+            uint256 actualBalance = IERC20Upgradeable(rt).balanceOf(address(this));
             uint256 distributionAmount = actualBalance.sub(expectedBalance);
             if(actualBalance > expectedBalance) {
                 uint256 totalShares = totalStaked();
@@ -241,7 +242,7 @@ contract TestStakingPool is TestStakingPoolBase {
 
         rewards[_token].unclaimed = rewards[_token].unclaimed.sub(rwrds);
 
-        IERC20(_token).transfer(swapContract, rwrds);
+        IERC20Upgradeable(_token).transfer(swapContract, rwrds);
 
         emit RewardWithdraw(_user, _token, rwrds);
     }

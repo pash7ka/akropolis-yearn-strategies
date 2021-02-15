@@ -1,11 +1,9 @@
 // SPDX-License-Identifier: AGPL V3.0
 pragma solidity ^0.6.12;
 
-import "@openzeppelin/contracts/proxy/Initializable.sol";
-import "@openzeppelin/contracts/GSN/Context.sol";
-import "@openzeppelin/contracts/access/Ownable.sol";
-import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
-import "@openzeppelin/contracts/math/SafeMath.sol";
+import "@ozUpgradesV3/contracts/access/OwnableUpgradeable.sol";
+import "@ozUpgradesV3/contracts/token/ERC20/IERC20Upgradeable.sol";
+import "@ozUpgradesV3/contracts/math/SafeMathUpgradeable.sol";
 import "./MinterRole.sol";
 import "./VestedAkroSenderRole.sol";
 
@@ -15,8 +13,8 @@ import "./VestedAkroSenderRole.sol";
  * Minters can mint unlocked vAKRO from AKRO to special VestedAkroSenders.
  * VestedAkroSender can send his unlocked vAKRO to generic holders, and this vAKRO will be vested. He can not redeem AKRO himself.
  */
-contract VestedAkro is Initializable, Context, Ownable, IERC20, MinterRole, VestedAkroSenderRole {
-    using SafeMath for uint256;
+contract VestedAkro is OwnableUpgradeable, IERC20Upgradeable, MinterRole, VestedAkroSenderRole {
+    using SafeMathUpgradeable for uint256;
 
     event Locked(address indexed holder, uint256 amount);
     event Unlocked(address indexed holder, uint256 amount);
@@ -40,13 +38,14 @@ contract VestedAkro is Initializable, Context, Ownable, IERC20, MinterRole, Vest
     uint8 private _decimals;
 
     uint256 public override totalSupply;
-    IERC20 public akro;
+    IERC20Upgradeable public akro;
     uint256 public vestingPeriod; //set by owner of this VestedAkro token
     mapping (address => mapping (address => uint256)) private allowances;
     mapping (address => Balance) private holders;
 
 
     function initialize(address _akro, uint256 _vestingPeriod) public initializer {
+        __Ownable_init();
         MinterRole.initialize(_msgSender());
         VestedAkroSenderRole.initialize(_msgSender());
 
@@ -54,7 +53,7 @@ contract VestedAkro is Initializable, Context, Ownable, IERC20, MinterRole, Vest
         _symbol = "vAKRO";
         _decimals = 18;
         
-        akro = IERC20(_akro);
+        akro = IERC20Upgradeable(_akro);
         require(_vestingPeriod > 0, "VestedAkro: vestingPeriod should be > 0");
         vestingPeriod = _vestingPeriod;
     }

@@ -2,20 +2,18 @@
 // SPDX-License-Identifier: AGPL V3.0
 pragma solidity ^0.6.12;
 
-import "@openzeppelin/contracts/proxy/Initializable.sol";
-import "@openzeppelin/contracts/GSN/Context.sol";
-import "@openzeppelin/contracts/access/Ownable.sol";
-import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
-import "@openzeppelin/contracts/token/ERC20/SafeERC20.sol";
-import "@openzeppelin/contracts/math/SafeMath.sol";
+import "@ozUpgradesV3/contracts/access/OwnableUpgradeable.sol";
+import "@ozUpgradesV3/contracts/token/ERC20/IERC20Upgradeable.sol";
+import "@ozUpgradesV3/contracts/token/ERC20/SafeERC20Upgradeable.sol";
+import "@ozUpgradesV3/contracts/math/SafeMathUpgradeable.sol";
 
 import "../../interfaces/IERC20Burnable.sol";
 import "../../interfaces/IERC20Mintable.sol";
 import "../../interfaces/delphi/IStakingPool.sol";
 
-contract AdelVAkroSwap is Initializable, Context, Ownable {
-    using SafeERC20 for IERC20;
-    using SafeMath for uint256;
+contract AdelVAkroSwap is OwnableUpgradeable {
+    using SafeERC20Upgradeable for IERC20Upgradeable;
+    using SafeMathUpgradeable for uint256;
  
     event AkroAdded(uint256 amount);
     event AdelSwapped(address indexed receiver, uint256 adelAmount, uint256 akroAmount);
@@ -47,6 +45,8 @@ contract AdelVAkroSwap is Initializable, Context, Ownable {
         require(_adel != address(0), "Zero address");
         require(_vakro != address(0), "Zero address");
         require(_stakingPool != address(0), "Zero address");
+
+        __Ownable_init();
 
         akro = _akro;
         adel = _adel;
@@ -80,7 +80,7 @@ contract AdelVAkroSwap is Initializable, Context, Ownable {
     function addSwapLiquidity(uint256 _amount) public {
         require(_amount > 0, "Incorrect amount");
         
-        IERC20(akro).safeTransferFrom(_msgSender(), address(this), _amount);
+        IERC20Upgradeable(akro).safeTransferFrom(_msgSender(), address(this), _amount);
         swapLiquidity = swapLiquidity.add(_amount);
         
         emit AkroAdded(_amount);
@@ -95,7 +95,7 @@ contract AdelVAkroSwap is Initializable, Context, Ownable {
         uint256 vAkroAmount = _adelAmount.mul(swapRate);
         require(swapLiquidity >= vAkroAmount, "Not enough AKRO");
 
-        IERC20(adel).safeTransferFrom(_msgSender(), address(this), _adelAmount);
+        IERC20Upgradeable(adel).safeTransferFrom(_msgSender(), address(this), _adelAmount);
 
         burnAndSwap(_adelAmount, vAkroAmount);
     }
@@ -112,7 +112,7 @@ contract AdelVAkroSwap is Initializable, Context, Ownable {
         require(swapLiquidity >= vAkroAmount, "Not enough AKRO");
 
         IStakingPool(stakingPool).withdrawStakeForSwap(_msgSender(), _adelAmount, _data);
-        require(IERC20(adel).balanceOf(address(this)) == _adelAmount, "ADEL was not transferred");
+        require(IERC20Upgradeable(adel).balanceOf(address(this)) == _adelAmount, "ADEL was not transferred");
         
         burnAndSwap(_adelAmount, vAkroAmount);
     }
@@ -124,7 +124,7 @@ contract AdelVAkroSwap is Initializable, Context, Ownable {
     {
         IStakingPool(stakingPool).withdrawRewardForSwap(_msgSender(), adel);
 
-        uint256 _adelAmount = IERC20(adel).balanceOf(address(this));
+        uint256 _adelAmount = IERC20Upgradeable(adel).balanceOf(address(this));
         uint256 vAkroAmount = _adelAmount.mul(swapRate);
         require(swapLiquidity >= vAkroAmount, "Not enough AKRO");
 
@@ -145,9 +145,9 @@ contract AdelVAkroSwap is Initializable, Context, Ownable {
 
         swapLiquidity = swapLiquidity.sub(vAkroAmount);
         
-        IERC20(akro).approve(vakro, vAkroAmount);
+        IERC20Upgradeable(akro).approve(vakro, vAkroAmount);
         IERC20Mintable(vakro).mint(address(this), vAkroAmount);
-        IERC20(vakro).transfer(_msgSender(), vAkroAmount);
+        IERC20Upgradeable(vakro).transfer(_msgSender(), vAkroAmount);
 
         emit AdelSwapped(_msgSender(), _adelAmount, vAkroAmount);
     }

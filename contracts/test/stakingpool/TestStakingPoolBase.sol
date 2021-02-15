@@ -1,24 +1,22 @@
 // SPDX-License-Identifier: AGPL V3.0
 pragma solidity ^0.6.12;
 
-import "@openzeppelin/contracts/proxy/Initializable.sol";
-import "@openzeppelin/contracts/GSN/Context.sol";
-import "@openzeppelin/contracts/access/Ownable.sol";
+import "@ozUpgradesV3/contracts/access/OwnableUpgradeable.sol";
 
-import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
-import "@openzeppelin/contracts/math/SafeMath.sol";
+import "@ozUpgradesV3/contracts/token/ERC20/ERC20Upgradeable.sol";
+import "@ozUpgradesV3/contracts/math/SafeMathUpgradeable.sol";
 
 import "../../../interfaces/delphi/IERC900.sol";
 
-contract TestStakingPoolBase is Initializable, Context, Ownable, IERC900  {
+contract TestStakingPoolBase is OwnableUpgradeable, IERC900  {
   // @TODO: deploy this separately so we don't have to deploy it multiple times for each contract
-  using SafeMath for uint256;
+  using SafeMathUpgradeable for uint256;
 
   address public capper;
   address public pool;
 
   // Token used for staking
-  ERC20 stakingToken;
+  ERC20Upgradeable stakingToken;
 
   // The default duration of stake lock-in (in seconds)
   uint256 public defaultLockInDuration;
@@ -170,7 +168,9 @@ contract TestStakingPoolBase is Initializable, Context, Ownable, IERC900  {
   }
  
 
-  function initialize(address _pool, ERC20 _stakingToken, uint256 _defaultLockInDuration) public initializer {
+  function initialize(address _pool, ERC20Upgradeable _stakingToken, uint256 _defaultLockInDuration) public initializer {
+        __Ownable_init();
+
         stakingToken = _stakingToken;
         defaultLockInDuration = _defaultLockInDuration;
         pool = _pool;
