@@ -5,7 +5,6 @@ import "@openzeppelin/contracts/proxy/Initializable.sol";
 import "@openzeppelin/contracts/GSN/Context.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
-import "./ERC20Detailed.sol";
 import "@openzeppelin/contracts/math/SafeMath.sol";
 import "./MinterRole.sol";
 import "./VestedAkroSenderRole.sol";
@@ -16,7 +15,7 @@ import "./VestedAkroSenderRole.sol";
  * Minters can mint unlocked vAKRO from AKRO to special VestedAkroSenders.
  * VestedAkroSender can send his unlocked vAKRO to generic holders, and this vAKRO will be vested. He can not redeem AKRO himself.
  */
-contract VestedAkro is Initializable, Context, Ownable, IERC20, ERC20Detailed, MinterRole, VestedAkroSenderRole {
+contract VestedAkro is Initializable, Context, Ownable, IERC20, MinterRole, VestedAkroSenderRole {
     using SafeMath for uint256;
 
     event Locked(address indexed holder, uint256 amount);
@@ -36,6 +35,10 @@ contract VestedAkro is Initializable, Context, Ownable, IERC20, ERC20Detailed, M
         uint256 firstUnclaimedBatch; // First batch which is not fully claimed
     }
 
+    string private _name;
+    string private _symbol;
+    uint8 private _decimals;
+
     uint256 public override totalSupply;
     IERC20 public akro;
     uint256 public vestingPeriod; //set by owner of this VestedAkro token
@@ -46,7 +49,11 @@ contract VestedAkro is Initializable, Context, Ownable, IERC20, ERC20Detailed, M
     function initialize(address _akro, uint256 _vestingPeriod) public initializer {
         MinterRole.initialize(_msgSender());
         VestedAkroSenderRole.initialize(_msgSender());
-        ERC20Detailed.initialize("Vested AKRO", "vAKRO", 18);
+
+        _name = "Vested AKRO";
+        _symbol = "vAKRO";
+        _decimals = 18;
+        
         akro = IERC20(_akro);
         require(_vestingPeriod > 0, "VestedAkro: vestingPeriod should be > 0");
         vestingPeriod = _vestingPeriod;
@@ -54,6 +61,18 @@ contract VestedAkro is Initializable, Context, Ownable, IERC20, ERC20Detailed, M
 
     // Stub for compiler purposes only
     function initialize(address sender) public override(MinterRole, VestedAkroSenderRole) {
+    }
+
+    function name() public view returns (string memory) {
+        return _name;
+    }
+
+    function symbol() public view returns (string memory) {
+        return _symbol;
+    }
+
+    function decimals() public view returns (uint8) {
+        return _decimals;
     }
 
     function allowance(address owner, address spender) public override view returns (uint256) {
