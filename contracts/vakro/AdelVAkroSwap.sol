@@ -148,7 +148,8 @@ contract AdelVAkroSwap is Initializable, Context, Ownable {
         swapLiquidity = swapLiquidity.sub(vAkroAmount);
         
         IERC20(akro).approve(vakro, vAkroAmount);
-        IERC20Mintable(vakro).mint(_msgSender(), vAkroAmount);
+        IERC20Mintable(vakro).mint(address(this), vAkroAmount);
+        IERC20(vakro).transfer(_msgSender(), vAkroAmount);
 
         emit AdelSwapped(_msgSender(), _adelAmount, vAkroAmount);
     }
