@@ -121,7 +121,7 @@ contract AdelVAkroSwap is Initializable, Context, Ownable {
      * @notice Allows to swap ADEL token which belongs to vested unclaimed rewards
      * @param _adelAmount Amout of ADEL the user has available to unstake in staking pool.
      */
-    function swapFromRewardAdel(uint256 _adelAmount) public swapEnabled
+    function swapFromRewardAdel() public swapEnabled
     {
         uint256 vAkroAmount = _adelAmount.mul(swapRate);
         require(swapLiquidity >= vAkroAmount, "Not enough AKRO");
