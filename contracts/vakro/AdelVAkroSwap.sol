@@ -119,7 +119,6 @@ contract AdelVAkroSwap is Initializable, Context, Ownable {
 
     /**
      * @notice Allows to swap ADEL token which belongs to vested unclaimed rewards
-     * @param _adelAmount Amout of ADEL the user has available to unstake in staking pool.
      */
     function swapFromRewardAdel() public swapEnabled
     {
