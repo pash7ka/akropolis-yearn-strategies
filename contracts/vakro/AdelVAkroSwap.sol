@@ -25,10 +25,10 @@ contract AdelVAkroSwap is OwnableUpgradeable {
     address public stakingPool;
 
     //Swap settings
-    uint256 minAmountToSwap = 0;
-    uint256 swapRate = 0; //Amount of vAkro for 1 ADEL
+    uint256 public minAmountToSwap = 0;
+    uint256 public swapRate = 0; //Amount of vAkro for 1 ADEL
 
-    uint256 swapLiquidity = 0;
+    uint256 public swapLiquidity = 0;
 
     modifier swapEnabled() {
         require(swapRate != 0, "Swap is disabled");
