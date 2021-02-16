@@ -154,7 +154,7 @@ def test_swap_rewards_adel(chain, deployer, akro, adel, vakro, rewardmodule, sta
 
 
     start = chain.time()
-    chain.mine(1, start + EPOCH_LENGTH)
+    chain.mine(1, start + 2*EPOCH_LENGTH)
     # Get rewards for vesting
     stakingpool.claimRewardsFromVesting({'from': deployer})
     assert adel.balanceOf(stakingpool.address) == ADEL_TO_SWAP + REWARDS_AMOUNT
