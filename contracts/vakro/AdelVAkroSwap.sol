@@ -15,7 +15,6 @@ contract AdelVAkroSwap is OwnableUpgradeable {
     using SafeERC20Upgradeable for IERC20Upgradeable;
     using SafeMathUpgradeable for uint256;
  
-    event AkroAdded(uint256 amount);
     event AdelSwapped(address indexed receiver, uint256 adelAmount, uint256 akroAmount);
 
     //Addresses of affected contracts
@@ -27,8 +26,6 @@ contract AdelVAkroSwap is OwnableUpgradeable {
     //Swap settings
     uint256 public minAmountToSwap = 0;
     uint256 public swapRate = 0; //Amount of vAkro for 1 ADEL
-
-    uint256 public swapLiquidity = 0;
 
     modifier swapEnabled() {
         require(swapRate != 0, "Swap is disabled");
@@ -74,26 +71,12 @@ contract AdelVAkroSwap is OwnableUpgradeable {
     }
 
     /**
-     * @notice Adds AKRO liquidity to the swap contract
-     * @param _amount Amout of AKRO added to the contract.
-     */
-    function addSwapLiquidity(uint256 _amount) public {
-        require(_amount > 0, "Incorrect amount");
-        
-        IERC20Upgradeable(akro).safeTransferFrom(_msgSender(), address(this), _amount);
-        swapLiquidity = swapLiquidity.add(_amount);
-        
-        emit AkroAdded(_amount);
-    }
-
-    /**
      * @notice Allows to swap ADEL token from the wallet for vAKRO
      * @param _adelAmount Amout of ADEL the user approves for the swap.
      */
     function swapFromAdel(uint256 _adelAmount) public swapEnabled enoughAdel(_adelAmount)
     {
         uint256 vAkroAmount = _adelAmount.mul(swapRate);
-        require(swapLiquidity >= vAkroAmount, "Not enough AKRO");
 
         IERC20Upgradeable(adel).safeTransferFrom(_msgSender(), address(this), _adelAmount);
 
@@ -113,7 +96,6 @@ contract AdelVAkroSwap is OwnableUpgradeable {
         require(_adelAmount != 0 && _adelAmount >= minAmountToSwap, "Not enough ADEL rewards");
         
         uint256 vAkroAmount = _adelAmount.mul(swapRate);
-        require(swapLiquidity >= vAkroAmount, "Not enough AKRO");
         
         burnAndSwap(_adelAmount, vAkroAmount);
     }
@@ -129,7 +111,6 @@ contract AdelVAkroSwap is OwnableUpgradeable {
         require(_adelAmount != 0 && _adelAmount >= minAmountToSwap, "Not enough ADEL rewards");
 
         uint256 vAkroAmount = _adelAmount.mul(swapRate);
-        require(swapLiquidity >= vAkroAmount, "Not enough AKRO");
         
         burnAndSwap(_adelAmount, vAkroAmount);
     }
@@ -143,10 +124,7 @@ contract AdelVAkroSwap is OwnableUpgradeable {
     function burnAndSwap(uint256 _adelAmount, uint256 vAkroAmount) internal
     {
         IERC20Burnable(adel).burn(_adelAmount);
-
-        swapLiquidity = swapLiquidity.sub(vAkroAmount);
         
-        IERC20Upgradeable(akro).approve(vakro, vAkroAmount);
         IERC20Mintable(vakro).mint(address(this), vAkroAmount);
         IERC20Upgradeable(vakro).transfer(_msgSender(), vAkroAmount);
 

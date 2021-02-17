@@ -4,6 +4,7 @@ pragma solidity ^0.6.12;
 import "@ozUpgradesV3/contracts/access/OwnableUpgradeable.sol";
 import "@ozUpgradesV3/contracts/token/ERC20/IERC20Upgradeable.sol";
 import "@ozUpgradesV3/contracts/math/SafeMathUpgradeable.sol";
+import "@ozUpgradesV3/contracts/token/ERC20/SafeERC20Upgradeable.sol";
 import "./MinterRole.sol";
 import "./VestedAkroSenderRole.sol";
 
@@ -15,9 +16,11 @@ import "./VestedAkroSenderRole.sol";
  */
 contract VestedAkro is OwnableUpgradeable, IERC20Upgradeable, MinterRole, VestedAkroSenderRole {
     using SafeMathUpgradeable for uint256;
+    using SafeERC20Upgradeable for IERC20Upgradeable;
 
     event Locked(address indexed holder, uint256 amount);
     event Unlocked(address indexed holder, uint256 amount);
+    event AkroAdded(uint256 amount);
 
     struct VestedBatch {
         uint256 amount;     // Full amount of vAKRO vested in this batch
@@ -42,6 +45,7 @@ contract VestedAkro is OwnableUpgradeable, IERC20Upgradeable, MinterRole, Vested
     uint256 public override totalSupply;
     IERC20Upgradeable public akro;
     uint256 public vestingPeriod; //set by owner of this VestedAkro token
+    uint256 public vestingStart; //set by owner, default value 01 May 2021, 00:00:00 GMT+0
     mapping (address => mapping (address => uint256)) private allowances;
     mapping (address => Balance) private holders;
 
@@ -58,6 +62,7 @@ contract VestedAkro is OwnableUpgradeable, IERC20Upgradeable, MinterRole, Vested
         akro = IERC20Upgradeable(_akro);
         require(_vestingPeriod > 0, "VestedAkro: vestingPeriod should be > 0");
         vestingPeriod = _vestingPeriod;
+        vestingStart = 1619827200; //01 May 2021, 00:00:00 GMT+0
     }
 
     // Stub for compiler purposes only
@@ -103,11 +108,31 @@ contract VestedAkro is OwnableUpgradeable, IERC20Upgradeable, MinterRole, Vested
         vestingPeriod = _vestingPeriod;
     }
 
+    /**
+     * @notice Sets vesting start date (as unix timestamp). Owner only
+     * @param _vestingStart Unix timestamp.
+     */
+    function setVestingStart(uint256 _vestingStart) public onlyOwner {
+        require(_vestingStart > 0, "VestedAkro: vestingStart should be > 0");
+        vestingStart = _vestingStart;
+    }
+
     function mint(address beneficiary, uint256 amount) public onlyMinter {
-        akro.transferFrom(_msgSender(), address(this), amount);
         totalSupply = totalSupply.add(amount);
         holders[beneficiary].unlocked = holders[beneficiary].unlocked.add(amount);
         emit Transfer(address(0), beneficiary, amount);
+    }
+
+    /**
+     * @notice Adds AKRO liquidity to the swap contract
+     * @param _amount Amout of AKRO added to the contract.
+     */
+    function addAkroLiquidity(uint256 _amount) public onlyMinter {
+        require(_amount > 0, "Incorrect amount");
+        
+        IERC20Upgradeable(akro).safeTransferFrom(_msgSender(), address(this), _amount);
+        
+        emit AkroAdded(_amount);
     }
 
     /**
@@ -141,6 +166,7 @@ contract VestedAkro is OwnableUpgradeable, IERC20Upgradeable, MinterRole, Vested
         require(!isSender(beneficiary), "VestedAkro: VestedAkroSender is not allowed to redeem");
         uint256 amount = holders[beneficiary].unlocked;
         if(amount == 0) return 0;
+        require(akro.balanceOf(address(this)) >= amount, "Not enough AKRO");
 
         holders[beneficiary].unlocked = 0;
         totalSupply = totalSupply.sub(amount);
@@ -194,8 +220,8 @@ contract VestedAkro is OwnableUpgradeable, IERC20Upgradeable, MinterRole, Vested
         Balance storage b = holders[holder];
         b.batches.push(VestedBatch({
             amount: amount,
-            start: now,
-            end: now.add(vestingPeriod),
+            start: vestingStart,
+            end: vestingStart.add(vestingPeriod),
             claimed: 0
         }));
         b.locked = b.locked.add(amount);
