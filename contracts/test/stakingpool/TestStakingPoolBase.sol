@@ -144,6 +144,10 @@ contract TestStakingPoolBase is OwnableUpgradeable, IERC900  {
   modifier isUserCapEnabledForUnStakeFor(uint256 unStake) {
      _;
 
+     checkAndUpdateCapForUnstakeFor(unStake);
+  }
+
+  function checkAndUpdateCapForUnstakeFor(uint256 unStake) internal {
      if(userCapEnabled){
         uint256 cap = userCap[_msgSender()];
         cap = cap.add(unStake);
@@ -333,25 +337,29 @@ contract TestStakingPoolBase is OwnableUpgradeable, IERC900  {
    * @param _amount uint256 the amount of tokens to unstake
    * @param _data bytes optional data to include in the Unstake event
    */
-  function unstake(uint256 _amount, bytes memory _data) public override {
+  function unstake(uint256 _amount, bytes memory _data) public virtual override {
     withdrawStake(
       _amount,
       _data);
   }
 
-  function unstakeAllUnlocked(bytes memory _data) public returns(uint256) {
-     uint256 unstakeAllAmount = 0;
-     uint256 personalStakeIndex = stakeHolders[_msgSender()].personalStakeIndex;
+  //function unstakeAllUnlocked(bytes memory _data) public returns(uint256) {
+  //   uint256 unstakeAllAmount = 0;
+  //   uint256 personalStakeIndex = stakeHolders[_msgSender()].personalStakeIndex;
 
-     for(uint256 i=personalStakeIndex; i<stakeHolders[_msgSender()].personalStakes.length; i++) {
+  //   for(uint256 i=personalStakeIndex; i<stakeHolders[_msgSender()].personalStakes.length; i++) {
        
-       if (stakeHolders[_msgSender()].personalStakes[i].unlockedTimestamp <= block.timestamp) {
-           unstakeAllAmount = unstakeAllAmount+stakeHolders[_msgSender()].personalStakes[i].actualAmount;
-           withdrawStake(stakeHolders[_msgSender()].personalStakes[i].actualAmount, _data);
-       }
-     }
+  //     if (stakeHolders[_msgSender()].personalStakes[i].unlockedTimestamp <= block.timestamp) {
+  //         unstakeAllAmount = unstakeAllAmount+stakeHolders[_msgSender()].personalStakes[i].actualAmount;
+  //         withdrawStake(stakeHolders[_msgSender()].personalStakes[i].actualAmount, _data);
+  //     }
+  //   }
 
-     return unstakeAllAmount;
+  //   return unstakeAllAmount;
+  //}
+
+  function unstakeAllUnlocked(bytes memory _data) public virtual returns (uint256) {
+      return withdrawStakes(_msgSender(), _msgSender(), _data);
   }
 
   /**
@@ -509,6 +517,39 @@ contract TestStakingPoolBase is OwnableUpgradeable, IERC900  {
       _amount,
       totalStakedFor(personalStake.stakedFor),
       _data);
+  }
+
+  function withdrawStakes(address _transferTo, address _unstakeFor, bytes memory _data) internal returns (uint256){
+      StakeContract storage sc = stakeHolders[_unstakeFor];
+      uint256 unstakeAmount = 0;
+      uint256 unstakedForOthers = 0;
+      uint256 personalStakeIndex = sc.personalStakeIndex;
+
+      uint256 i;
+      for (i = personalStakeIndex; i < sc.personalStakes.length; i++) {
+          Stake storage personalStake = sc.personalStakes[i];
+          if(personalStake.unlockedTimestamp > block.timestamp) break; //We've found last unlocked stake
+            
+          if(personalStake.stakedFor != _unstakeFor){
+              //Handle unstake of staked for other address
+              stakeHolders[personalStake.stakedFor].totalStakedFor = stakeHolders[personalStake.stakedFor].totalStakedFor.sub(personalStake.actualAmount);
+              unstakedForOthers = unstakedForOthers.add(personalStake.actualAmount);
+              emit Unstaked(personalStake.stakedFor, personalStake.actualAmount, totalStakedFor(personalStake.stakedFor), _data);
+          }
+
+          unstakeAmount = unstakeAmount.add(personalStake.actualAmount);
+          personalStake.actualAmount = 0;
+      }
+      sc.personalStakeIndex = i;
+
+      uint256 unstakedForSender = unstakeAmount.sub(unstakedForOthers);
+      sc.totalStakedFor = sc.totalStakedFor.sub(unstakedForSender);
+      totalStakedAmount = totalStakedAmount.sub(unstakeAmount);
+      require(stakingToken.transfer(_transferTo, unstakeAmount), "Unable to withdraw");
+      emit Unstaked(_unstakeFor, unstakedForSender, sc.totalStakedFor, _data);
+
+      checkAndUpdateCapForUnstakeFor(unstakeAmount);
+      return unstakeAmount;
   }
 
   uint256[49] private ______gap;

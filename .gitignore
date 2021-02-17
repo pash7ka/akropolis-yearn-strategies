@@ -63,6 +63,13 @@ SafeMathUpgradeable.json
 ERC20Detailed.json
 MinterRole.json
 Roles.json
+ERC20Upgradeable.json
+
+TestADEL.json
+TestRewardVestingModule.json
+TestStakingPool.json
+TestStakingPoolBase.json
+TestERC20.json
 
 UpgradeTestNew.json
 UpgradeTestOld.json

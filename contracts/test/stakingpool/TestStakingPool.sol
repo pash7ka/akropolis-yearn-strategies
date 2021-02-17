@@ -1,5 +1,6 @@
 // SPDX-License-Identifier: AGPL V3.0
 pragma solidity ^0.6.12; 
+pragma experimental ABIEncoderV2;
 
 import "@ozUpgradesV3/contracts/math/SafeMathUpgradeable.sol";
 import "@ozUpgradesV3/contracts/token/ERC20/IERC20Upgradeable.sol";
@@ -32,7 +33,7 @@ contract TestStakingPool is TestStakingPoolBase {
 
     TestRewardVestingModule public rewardVesting;
     address[] internal registeredRewardTokens;
-    mapping(address=>RewardData) internal rewards;
+    mapping(address=>RewardData) public rewards;
     mapping(address=>UserRewardInfo) internal userRewards;
 
     address public swapContract;
@@ -81,7 +82,7 @@ contract TestStakingPool is TestStakingPoolBase {
     //         _withdrawRewards(user, rewardTokens[i]);
     //     }
     // }
-
+    
     function rewardBalanceOf(address user, address token) public view returns(uint256) {
         RewardData storage rd = rewards[token];
         if(rd.unclaimed == 0) return 0; //Either token not registered or everything is already claimed
@@ -126,9 +127,14 @@ contract TestStakingPool is TestStakingPoolBase {
         super.createStake(_address, _amount, _lockInDuration, _data);
     }
 
-    function withdrawStake(uint256 _amount, bytes memory _data) internal override {
+    function unstake(uint256 _amount, bytes memory _data) public override {
         _withdrawRewards(_msgSender());
         super.withdrawStake(_amount, _data);
+    }
+
+    function unstakeAllUnlocked(bytes memory _data) public override returns (uint256) {
+        _withdrawRewards(_msgSender());
+        super.unstakeAllUnlocked(_data);
     }
 
 
@@ -175,50 +181,14 @@ contract TestStakingPool is TestStakingPoolBase {
      * @notice Though, instead of withdrawing the ADEL, the function sends it to the Swap contract.
      * @notice Can be called ONLY by the Swap contract.
      * @param _user User to withdraw the stake for.
-     * @param _amount Amount to withdaw.
      * @param _data Data for the event.
      */
-    function withdrawStakeForSwap(address _user, uint256 _amount, bytes calldata _data)
+    function withdrawStakeForSwap(address _user, bytes calldata _data)
             external
             swapEligible(_user)
+            returns(uint256)
     {
-        uint256 stakeIndex = stakeHolders[_user].personalStakeIndex;
-        Stake storage personalStake = stakeHolders[_user].personalStakes[stakeIndex];
-
-        // Check that the current stake has unlocked & matches the unstake amount
-        require(personalStake.unlockedTimestamp <= block.timestamp,
-                "The current stake hasn't unlocked yet");
-
-        require(personalStake.actualAmount == _amount,
-                "The unstake amount does not match the current stake");
-
-        // Transfer the staked tokens to swap contract
-        require(stakingToken.transfer(swapContract, _amount), "Cannot transfer to swap contract");
-
-
-        uint256 newStakedFor = stakeHolders[personalStake.stakedFor].totalStakedFor.sub(personalStake.actualAmount);
-        stakeHolders[personalStake.stakedFor].totalStakedFor = newStakedFor;
-        
-        personalStake.actualAmount = 0;
-        stakeHolders[_user].personalStakeIndex++;
-
-        totalStakedAmount = totalStakedAmount.sub(_amount);
-
-        emit Unstaked(personalStake.stakedFor, _amount,
-                      totalStakedFor(personalStake.stakedFor), _data);
-
-        //Copied from StakingPoolBase.sol
-        if(userCapEnabled){
-            uint256 cap = userCap[_user];
-            cap = cap.add(_amount);
-
-            if (cap > defaultUserCap) {
-                cap = defaultUserCap;
-            }
-
-            userCap[_user] = cap;
-            emit UserCapChanged(_user, cap);
-        }
+        return super.withdrawStakes(_msgSender(), _user, _data);
     }
 
     /**
@@ -228,7 +198,9 @@ contract TestStakingPool is TestStakingPoolBase {
      * @param _user User to withdraw the stake for.
      * @param _token Token to get the rewards (can be only ADEL).
      */
-    function withdrawRewardForSwap(address _user, address _token) external swapEligible(_user) {
+    function withdrawRewardForSwap(address _user, address _token) external swapEligible(_user) 
+        returns(uint256)
+    {
         UserRewardInfo storage uri = userRewards[_user];
         RewardData storage rd = rewards[_token];
 
@@ -245,6 +217,7 @@ contract TestStakingPool is TestStakingPoolBase {
         IERC20Upgradeable(_token).transfer(swapContract, rwrds);
 
         emit RewardWithdraw(_user, _token, rwrds);
+        return rwrds;
     }
 
 }

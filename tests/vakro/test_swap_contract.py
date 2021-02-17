@@ -94,7 +94,7 @@ def test_swap_staked_adel(chain, deployer, akro, adel, vakro, stakingpool, vakro
     ###
     # Action performed
     ###
-    vakroSwap.swapFromStakedAdel(ADEL_TO_SWAP, hexify("Some string"), {'from': regular_user2})
+    vakroSwap.swapFromStakedAdel(hexify("Some string"), {'from': regular_user2})
     
     adel_balance_after = adel.balanceOf(regular_user2)
     akro_balance_after = akro.balanceOf(regular_user2)
@@ -156,7 +156,9 @@ def test_swap_rewards_adel(chain, deployer, akro, adel, vakro, rewardmodule, sta
     start = chain.time()
     chain.mine(1, start + 2*EPOCH_LENGTH)
     # Get rewards for vesting
+
     stakingpool.claimRewardsFromVesting({'from': deployer})
+
     assert adel.balanceOf(stakingpool.address) == ADEL_TO_SWAP + REWARDS_AMOUNT
     ###
     # Action performed

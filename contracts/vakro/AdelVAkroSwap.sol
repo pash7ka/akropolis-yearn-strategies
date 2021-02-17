@@ -103,16 +103,17 @@ contract AdelVAkroSwap is OwnableUpgradeable {
 
     /**
      * @notice Allows to swap ADEL token which is currently staked in StakingPool
-     * @param _adelAmount Amout of ADEL the user has available to unstake in staking pool.
      * @param _data Data for unstaking.
      */
-    function swapFromStakedAdel(uint256 _adelAmount, bytes memory _data) public swapEnabled enoughAdel(_adelAmount)
+    function swapFromStakedAdel(bytes memory _data) public swapEnabled
     {
+        uint256 _adelAmount = IStakingPool(stakingPool).withdrawStakeForSwap(_msgSender(), _data);
+        
+        require(IERC20Upgradeable(adel).balanceOf(address(this)) == _adelAmount, "ADEL was not transferred");
+        require(_adelAmount != 0 && _adelAmount >= minAmountToSwap, "Not enough ADEL rewards");
+        
         uint256 vAkroAmount = _adelAmount.mul(swapRate);
         require(swapLiquidity >= vAkroAmount, "Not enough AKRO");
-
-        IStakingPool(stakingPool).withdrawStakeForSwap(_msgSender(), _adelAmount, _data);
-        require(IERC20Upgradeable(adel).balanceOf(address(this)) == _adelAmount, "ADEL was not transferred");
         
         burnAndSwap(_adelAmount, vAkroAmount);
     }
@@ -122,13 +123,13 @@ contract AdelVAkroSwap is OwnableUpgradeable {
      */
     function swapFromRewardAdel() public swapEnabled
     {
-        IStakingPool(stakingPool).withdrawRewardForSwap(_msgSender(), adel);
+        uint256 _adelAmount = IStakingPool(stakingPool).withdrawRewardForSwap(_msgSender(), adel);
 
-        uint256 _adelAmount = IERC20Upgradeable(adel).balanceOf(address(this));
+        require(IERC20Upgradeable(adel).balanceOf(address(this)) == _adelAmount, "ADEL was not transferred");
+        require(_adelAmount != 0 && _adelAmount >= minAmountToSwap, "Not enough ADEL rewards");
+
         uint256 vAkroAmount = _adelAmount.mul(swapRate);
         require(swapLiquidity >= vAkroAmount, "Not enough AKRO");
-
-        require(_adelAmount != 0 && _adelAmount >= minAmountToSwap, "Not enough ADEL rewards");
         
         burnAndSwap(_adelAmount, vAkroAmount);
     }
