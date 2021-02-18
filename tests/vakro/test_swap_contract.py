@@ -18,6 +18,8 @@ def prepare_swap(deployer, adel, akro, vakro, stakingpool, vakroSwap):
     stakingpool.setSwapContract(vakroSwap.address, {'from': deployer})
 
     vakroSwap.setSwapRate(ADEL_AKRO_RATE, {'from': deployer})
+    vakroSwap.setStakingPool(stakingpool, {'from': deployer})
+    vakroSwap.setRewardStakingPool(stakingpool, {'from': deployer})
 
 def hexify(s):
     return s.encode("utf-8").hex()
@@ -53,8 +55,8 @@ def test_swap_adel(chain, deployer, akro, adel, vakro, vakroSwap, prepare_swap, 
     assert unlocked == 0
     assert unlockable == 0
 
-    # Swap has burned ADEL, minted vAkro for the user and sent AKRO to vAkro
-    assert adel.balanceOf(vakroSwap.address) == 0
+    # Swap has collected ADEL, minted vAkro for the user and sent AKRO to vAkro
+    assert adel.balanceOf(vakroSwap.address) == ADEL_TO_SWAP
     assert vakro.balanceOf(vakroSwap.address) == 0
 
     akro.approve(vakro.address, ADEL_TO_SWAP * ADEL_AKRO_RATE, {'from': deployer})
@@ -66,6 +68,7 @@ def test_swap_adel(chain, deployer, akro, adel, vakro, vakroSwap, prepare_swap, 
     chain.mine(1, start + EPOCH_LENGTH)
 
     vakro.unlockAndRedeemAll({'from' : regular_user})
+    vakroSwap.withdrawAdel(deployer.address, {'from' : deployer})
 
 
 def test_swap_staked_adel(chain, deployer, akro, adel, vakro, stakingpool, vakroSwap, prepare_swap, regular_user2):
@@ -84,16 +87,13 @@ def test_swap_staked_adel(chain, deployer, akro, adel, vakro, stakingpool, vakro
     assert vakro.balanceOf(regular_user2) == 0
     assert adel.balanceOf(vakroSwap.address) == 0
 
-
-    start = chain.time()
-    chain.mine(1, start + EPOCH_LENGTH)
     ###
     # Action performed
     ###
     vakro.setVestingCliff(0, {'from': deployer})
     start = chain.time() + 50
     vakro.setVestingStart(start, {'from': deployer})
-    chain.mine(1)
+    chain.mine(1, start + EPOCH_LENGTH)
 
     vakroSwap.swapFromStakedAdel(hexify("Some string"), {'from': regular_user2})
     
@@ -109,10 +109,10 @@ def test_swap_staked_adel(chain, deployer, akro, adel, vakro, stakingpool, vakro
     locked, unlocked, unlockable = vakro.balanceInfoOf(regular_user2)
     assert locked == ADEL_TO_SWAP * ADEL_AKRO_RATE
     assert unlocked == 0
-    assert unlockable == 0
+    assert unlockable == ADEL_TO_SWAP * ADEL_AKRO_RATE
 
-    # Swap has burned ADEL, minted vAkro for the user and sent AKRO to vAkro
-    assert adel.balanceOf(vakroSwap.address) == 0
+    # Swap has collected ADEL, minted vAkro for the user and sent AKRO to vAkro
+    assert adel.balanceOf(vakroSwap.address) == ADEL_TO_SWAP
     assert vakro.balanceOf(vakroSwap.address) == 0
 
     akro.approve(vakro.address, ADEL_TO_SWAP * ADEL_AKRO_RATE, {'from': deployer})
@@ -128,6 +128,7 @@ def test_swap_staked_adel(chain, deployer, akro, adel, vakro, stakingpool, vakro
     chain.mine(1, start + EPOCH_LENGTH)
 
     vakro.unlockAndRedeemAll({'from' : regular_user2})
+    vakroSwap.withdrawAdel(deployer.address, {'from' : deployer})
 
 
 
@@ -149,10 +150,10 @@ def test_swap_rewards_adel(chain, deployer, akro, adel, vakro, rewardmodule, sta
     assert adel.balanceOf(vakroSwap.address) == 0
 
 
+    # Get rewards for vesting
     start = chain.time()
     chain.mine(1, start + 2*EPOCH_LENGTH)
-    # Get rewards for vesting
-
+    
     stakingpool.claimRewardsFromVesting({'from': deployer})
 
     assert adel.balanceOf(stakingpool.address) == ADEL_TO_SWAP + REWARDS_AMOUNT
@@ -160,7 +161,8 @@ def test_swap_rewards_adel(chain, deployer, akro, adel, vakro, rewardmodule, sta
     # Action performed
     ###
     vakro.setVestingCliff(0, {'from': deployer})
-    vakro.setVestingStart(chain.time(), {'from': deployer})
+    start = chain.time() + 50
+    vakro.setVestingStart(start, {'from': deployer})
     chain.mine(1)
 
     vakroSwap.swapFromRewardAdel({'from': regular_user3})
@@ -179,8 +181,8 @@ def test_swap_rewards_adel(chain, deployer, akro, adel, vakro, rewardmodule, sta
     assert unlocked == 0
     assert unlockable == 0
 
-    # Swap has burned rewards ADEL, minted vAkro for the user and sent AKRO to vAkro
-    assert adel.balanceOf(vakroSwap.address) == 0
+    # Swap has colelcted rewards ADEL, minted vAkro for the user and sent AKRO to vAkro
+    assert adel.balanceOf(vakroSwap.address) == REWARDS_AMOUNT
     assert vakro.balanceOf(vakroSwap.address) == 0
 
     akro.approve(vakro.address, REWARDS_AMOUNT * ADEL_AKRO_RATE, {'from': deployer})
@@ -191,6 +193,11 @@ def test_swap_rewards_adel(chain, deployer, akro, adel, vakro, rewardmodule, sta
     # Stake was unchanged
     assert staking_adel_balance_before - staking_adel_balance_after == 0
     assert stakingpool.totalStakedFor(regular_user3) == ADEL_TO_SWAP
+
+    chain.mine(1, start + EPOCH_LENGTH)
+
+    vakro.unlockAndRedeemAll({'from' : regular_user3})
+    vakroSwap.withdrawAdel(deployer.address, {'from' : deployer})
 
 def test_batch_creation(chain, deployer, akro, adel, vakro, rewardmodule, stakingpool, vakroSwap, setup_rewards, prepare_swap, regular_user4):
     adel.transfer(regular_user4, 3 * ADEL_TO_SWAP, {'from': deployer})

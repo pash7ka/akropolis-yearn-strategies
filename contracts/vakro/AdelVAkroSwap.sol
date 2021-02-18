@@ -6,12 +6,13 @@ import "@ozUpgradesV3/contracts/access/OwnableUpgradeable.sol";
 import "@ozUpgradesV3/contracts/token/ERC20/IERC20Upgradeable.sol";
 import "@ozUpgradesV3/contracts/token/ERC20/SafeERC20Upgradeable.sol";
 import "@ozUpgradesV3/contracts/math/SafeMathUpgradeable.sol";
+import "@ozUpgradesV3/contracts/utils/ReentrancyGuardUpgradeable.sol";
 
 import "../../interfaces/IERC20Burnable.sol";
 import "../../interfaces/IERC20Mintable.sol";
 import "../../interfaces/delphi/IStakingPool.sol";
 
-contract AdelVAkroSwap is OwnableUpgradeable {
+contract AdelVAkroSwap is OwnableUpgradeable, ReentrancyGuardUpgradeable {
     using SafeERC20Upgradeable for IERC20Upgradeable;
     using SafeMathUpgradeable for uint256;
  
@@ -22,10 +23,11 @@ contract AdelVAkroSwap is OwnableUpgradeable {
     address public adel;
     address public vakro;
     address public stakingPool;
+    address public rewardStakingPool;
 
     //Swap settings
     uint256 public minAmountToSwap = 0;
-    uint256 public swapRate = 0; //Amount of vAkro for 1 ADEL
+    uint256 public swapRate = 0; //Amount of vAkro for 1 ADEL - 0 by default
 
     modifier swapEnabled() {
         require(swapRate != 0, "Swap is disabled");
@@ -37,21 +39,37 @@ contract AdelVAkroSwap is OwnableUpgradeable {
         _;
     }
 
-    function initialize(address _akro, address _adel, address _vakro, address _stakingPool) public initializer {
+    function initialize(address _akro, address _adel, address _vakro) public initializer {
         require(_akro != address(0), "Zero address");
         require(_adel != address(0), "Zero address");
         require(_vakro != address(0), "Zero address");
-        require(_stakingPool != address(0), "Zero address");
 
         __Ownable_init();
 
         akro = _akro;
         adel = _adel;
         vakro = _vakro;
-        stakingPool = _stakingPool;
     }    
 
     //Setters for the swap tuning
+
+    /**
+     * @notice Sets the ADEL staking pool address
+     * @param _stakingPool Adel staking pool address)
+     */
+    function setStakingPool(address _stakingPool) public onlyOwner {
+        require(_stakingPool != address(0), "Zero address");
+        stakingPool = _stakingPool;
+    }
+
+    /**
+     * @notice Sets the staking pool address with ADEL rewards
+     * @param _rewardStakingPool Adel staking pool address)
+     */
+    function setRewardStakingPool(address _rewardStakingPool) public onlyOwner {
+        require(_rewardStakingPool != address(0), "Zero address");
+        rewardStakingPool = _rewardStakingPool;
+    }
 
     /**
      * @notice Sets the minimum amount of ADEL which can be swapped. 0 by default
@@ -71,16 +89,25 @@ contract AdelVAkroSwap is OwnableUpgradeable {
     }
 
     /**
+     * @notice Withdraws all ADEL collected on a Swap contract
+     * @param _recepient Recepient of ADEL.
+     */
+    function withdrawAdel(address _recepient) public onlyOwner {
+        require(_recepient != address(0), "Zero address");
+        uint256 _adelAmount = IERC20Upgradeable(adel).balanceOf(address(this));
+        require(_adelAmount > 0, "Nothing to withdraw");
+        IERC20Upgradeable(adel).safeTransfer(_recepient, _adelAmount);
+    }
+
+    /**
      * @notice Allows to swap ADEL token from the wallet for vAKRO
      * @param _adelAmount Amout of ADEL the user approves for the swap.
      */
-    function swapFromAdel(uint256 _adelAmount) public swapEnabled enoughAdel(_adelAmount)
+    function swapFromAdel(uint256 _adelAmount) public nonReentrant swapEnabled enoughAdel(_adelAmount)
     {
-        uint256 vAkroAmount = _adelAmount.mul(swapRate);
-
         IERC20Upgradeable(adel).safeTransferFrom(_msgSender(), address(this), _adelAmount);
 
-        burnAndSwap(_adelAmount, vAkroAmount);
+        swap(_adelAmount);
     }
     
 
@@ -88,43 +115,46 @@ contract AdelVAkroSwap is OwnableUpgradeable {
      * @notice Allows to swap ADEL token which is currently staked in StakingPool
      * @param _data Data for unstaking.
      */
-    function swapFromStakedAdel(bytes memory _data) public swapEnabled
+    function swapFromStakedAdel(bytes memory _data) public nonReentrant swapEnabled
     {
+        require(stakingPool != address(0), "Swap from stake is disabled");
+        
+        uint256 adelBefore = IERC20Upgradeable(adel).balanceOf(address(this));
         uint256 _adelAmount = IStakingPool(stakingPool).withdrawStakeForSwap(_msgSender(), _data);
+        uint256 adelAfter = IERC20Upgradeable(adel).balanceOf(address(this));
         
-        require(IERC20Upgradeable(adel).balanceOf(address(this)) == _adelAmount, "ADEL was not transferred");
-        require(_adelAmount != 0 && _adelAmount >= minAmountToSwap, "Not enough ADEL rewards");
-        
-        uint256 vAkroAmount = _adelAmount.mul(swapRate);
-        
-        burnAndSwap(_adelAmount, vAkroAmount);
+        require( adelAfter - adelBefore == _adelAmount, "ADEL was not transferred");
+                
+        swap(_adelAmount);
     }
 
     /**
      * @notice Allows to swap ADEL token which belongs to vested unclaimed rewards
      */
-    function swapFromRewardAdel() public swapEnabled
+    function swapFromRewardAdel() public nonReentrant swapEnabled
     {
-        uint256 _adelAmount = IStakingPool(stakingPool).withdrawRewardForSwap(_msgSender(), adel);
+        require(rewardStakingPool != address(0), "Swap from reards is disabled");
 
-        require(IERC20Upgradeable(adel).balanceOf(address(this)) == _adelAmount, "ADEL was not transferred");
-        require(_adelAmount != 0 && _adelAmount >= minAmountToSwap, "Not enough ADEL rewards");
+        uint256 adelBefore = IERC20Upgradeable(adel).balanceOf(address(this));
+        uint256 _adelAmount = IStakingPool(rewardStakingPool).withdrawRewardForSwap(_msgSender(), adel);
+        uint256 adelAfter = IERC20Upgradeable(adel).balanceOf(address(this));
 
-        uint256 vAkroAmount = _adelAmount.mul(swapRate);
+        require( adelAfter - adelBefore == _adelAmount, "ADEL was not transferred");
         
-        burnAndSwap(_adelAmount, vAkroAmount);
+        swap(_adelAmount);
     }
 
 
     /**
-     * @notice Internal function to burn ADEL and mint vAkro for the sender
-     * @param _adelAmount Amout of ADEL the contract needs to burn.
-     * @param vAkroAmount Amout of vAkro the contract needs to mint.
+     * @notice Internal function to collect ADEL and mint vAkro for the sender
+     * @param _adelAmount Amout of ADEL the contract needs to swap.
      */
-    function burnAndSwap(uint256 _adelAmount, uint256 vAkroAmount) internal
+    function swap(uint256 _adelAmount) internal
     {
-        IERC20Burnable(adel).burn(_adelAmount);
-        
+        require(_adelAmount != 0 && _adelAmount >= minAmountToSwap, "Not enough ADEL");
+
+        uint256 vAkroAmount = _adelAmount.mul(swapRate);
+
         IERC20Mintable(vakro).mint(address(this), vAkroAmount);
         IERC20Upgradeable(vakro).transfer(_msgSender(), vAkroAmount);
 

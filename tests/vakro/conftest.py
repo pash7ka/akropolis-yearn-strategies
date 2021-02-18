@@ -92,9 +92,9 @@ def stakingpool(deployer, proxy_admin, pool, adel, TestStakingPool):
     yield stakingpoolImplFromProxy
 
 @pytest.fixture(scope="module")
-def vakroSwap(deployer, proxy_admin, adel, akro, vakro, stakingpool, AdelVAkroSwap):
+def vakroSwap(deployer, proxy_admin, adel, akro, vakro, AdelVAkroSwap):
     vakroSwapImplFromProxy, vakroSwapProxy, vakroSwapImpl = deploy_proxy(deployer, proxy_admin, AdelVAkroSwap,
-                                                                         akro.address, adel.address, vakro.address, stakingpool.address)
+                                                                         akro.address, adel.address, vakro.address)
 
     assert vakroSwapProxy.admin.call({"from":proxy_admin.address}) == proxy_admin.address
     assert vakroSwapProxy.implementation.call({"from":proxy_admin.address}) == vakroSwapImpl.address
