@@ -27,8 +27,12 @@ def regular_user3(accounts):
     yield accounts[3]
 
 @pytest.fixture(scope="module")
-def pool(accounts):
+def regular_user4(accounts):
     yield accounts[4]
+
+@pytest.fixture(scope="module")
+def pool(accounts):
+    yield accounts[5]
 
 @pytest.fixture(scope="module")
 def proxy_admin(deployer):

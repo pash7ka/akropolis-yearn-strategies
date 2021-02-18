@@ -46,6 +46,7 @@ contract VestedAkro is OwnableUpgradeable, IERC20Upgradeable, MinterRole, Vested
     IERC20Upgradeable public akro;
     uint256 public vestingPeriod; //set by owner of this VestedAkro token
     uint256 public vestingStart; //set by owner, default value 01 May 2021, 00:00:00 GMT+0
+    uint256 public vestingCliff; //set by owner, cliff for akro unlock, 1 month by default
     mapping (address => mapping (address => uint256)) private allowances;
     mapping (address => Balance) private holders;
 
@@ -63,6 +64,7 @@ contract VestedAkro is OwnableUpgradeable, IERC20Upgradeable, MinterRole, Vested
         require(_vestingPeriod > 0, "VestedAkro: vestingPeriod should be > 0");
         vestingPeriod = _vestingPeriod;
         vestingStart = 1619827200; //01 May 2021, 00:00:00 GMT+0
+        vestingCliff = 31 * 24 * 60 * 60; //1 month - 31 day in May
     }
 
     // Stub for compiler purposes only
@@ -115,6 +117,14 @@ contract VestedAkro is OwnableUpgradeable, IERC20Upgradeable, MinterRole, Vested
     function setVestingStart(uint256 _vestingStart) public onlyOwner {
         require(_vestingStart > 0, "VestedAkro: vestingStart should be > 0");
         vestingStart = _vestingStart;
+    }
+
+    /**
+     * @notice Sets vesting start date (as unix timestamp). Owner only
+     * @param _vestingCliff Cliff in seconds (1 month by default)
+     */
+    function setVestingCliff(uint256 _vestingCliff) public onlyOwner {
+        vestingCliff = _vestingCliff;
     }
 
     function mint(address beneficiary, uint256 amount) public onlyMinter {
@@ -210,20 +220,27 @@ contract VestedAkro is OwnableUpgradeable, IERC20Upgradeable, MinterRole, Vested
         require(recipient != address(0), "VestedAkro: transfer to the zero address");
 
         holders[sender].unlocked = holders[sender].unlocked.sub(amount, "VestedAkro: transfer amount exceeds unlocked balance");
-        createNewBatch(recipient, amount);
+        createOrModifyBatch(recipient, amount);
 
         emit Transfer(sender, recipient, amount);
     }
 
 
-    function createNewBatch(address holder, uint256 amount) internal {
+    function createOrModifyBatch(address holder, uint256 amount) internal {
         Balance storage b = holders[holder];
-        b.batches.push(VestedBatch({
-            amount: amount,
-            start: vestingStart,
-            end: vestingStart.add(vestingPeriod),
-            claimed: 0
-        }));
+
+        if (b.batches.length == 0 || b.firstUnclaimedBatch == b.batches.length) {
+            b.batches.push(VestedBatch({
+                amount: amount,
+                start: vestingStart,
+                end: vestingStart.add(vestingPeriod),
+                claimed: 0
+            }));
+        }
+        else {
+            uint256 batchAmount = b.batches[b.firstUnclaimedBatch].amount;
+            b.batches[b.firstUnclaimedBatch].amount = batchAmount.add(amount);
+        }
         b.locked = b.locked.add(amount);
         emit Locked(holder, amount);
     }
@@ -278,7 +295,9 @@ contract VestedAkro is OwnableUpgradeable, IERC20Upgradeable, MinterRole, Vested
      * @return claimable amount and bool which is true if batch is fully claimable
      */
     function calculateClaimableFromBatch(VestedBatch storage vb) internal view returns(uint256, bool) {
-        //if(now < vb.start) return (0, false); // this should never happen because we have no cliff period
+        if (now < vb.start.add(vestingCliff) ) {
+            return (0, false); // No unlcoks before cliff period is over
+        }
         if(now >= vb.end) {
             return (vb.amount.sub(vb.claimed), true);
         }

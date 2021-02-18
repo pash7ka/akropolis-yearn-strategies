@@ -134,7 +134,7 @@ contract TestStakingPool is TestStakingPoolBase {
 
     function unstakeAllUnlocked(bytes memory _data) public override returns (uint256) {
         _withdrawRewards(_msgSender());
-        super.unstakeAllUnlocked(_data);
+        return super.unstakeAllUnlocked(_data);
     }
 
 
