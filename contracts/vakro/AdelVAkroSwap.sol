@@ -27,10 +27,12 @@ contract AdelVAkroSwap is OwnableUpgradeable, ReentrancyGuardUpgradeable {
 
     //Swap settings
     uint256 public minAmountToSwap = 0;
-    uint256 public swapRate = 0; //Amount of vAkro for 1 ADEL - 0 by default
+    uint256 public swapRateNumerator = 0;   //Amount of vAkro for 1 ADEL - 0 by default
+    uint256 public swapRateDenominator = 1; //Akro amount = Adel amount * swapRateNumerator / swapRateDenominator
+                                            //1 Adel = swapRateNumerator/swapRateDenominator Akro
 
     modifier swapEnabled() {
-        require(swapRate != 0, "Swap is disabled");
+        require(swapRateNumerator != 0, "Swap is disabled");
         _;
     }
 
@@ -80,12 +82,15 @@ contract AdelVAkroSwap is OwnableUpgradeable, ReentrancyGuardUpgradeable {
     }
 
     /**
-     * @notice Sets the rate of ADEL to vAKRO swap - how many vAKRO for 1 ADEL
+     * @notice Sets the rate of ADEL to vAKRO swap: 1 ADEL = _swapRateNumerator/_swapRateDenominator vAKRO
      * @notice By default is set to 0, that means that swap is disabled
-     * @param _swapRate Amout of vAKRO for 1 ADEL. Can be set to 0 - that stops the swap.
+     * @param _swapRateNumerator Numerator for Adel converting. Can be set to 0 - that stops the swap.
+     * @param _swapRateDenominator Denominator for Adel converting. Can't be set to 0
      */
-    function setSwapRate(uint256 _swapRate) public onlyOwner {
-        swapRate = _swapRate;
+    function setSwapRate(uint256 _swapRateNumerator, uint256 _swapRateDenominator) public onlyOwner {
+        require(_swapRateDenominator > 0, "Incorrect value");
+        swapRateNumerator = _swapRateNumerator;
+        swapRateDenominator = _swapRateDenominator;
     }
 
     /**
@@ -153,7 +158,7 @@ contract AdelVAkroSwap is OwnableUpgradeable, ReentrancyGuardUpgradeable {
     {
         require(_adelAmount != 0 && _adelAmount >= minAmountToSwap, "Not enough ADEL");
 
-        uint256 vAkroAmount = _adelAmount.mul(swapRate);
+        uint256 vAkroAmount = _adelAmount.mul(swapRateNumerator).div(swapRateDenominator);
 
         IERC20Mintable(vakro).mint(address(this), vAkroAmount);
         IERC20Upgradeable(vakro).transfer(_msgSender(), vAkroAmount);

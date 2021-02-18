@@ -551,6 +551,19 @@
     "inputs": [
       {
         "internalType": "uint256",
+        "name": "_vestingCliff",
+        "type": "uint256"
+      }
+    ],
+    "name": "setVestingCliff",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
         "name": "_vestingPeriod",
         "type": "uint256"
       }
@@ -700,6 +713,19 @@
       }
     ],
     "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "vestingCliff",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
     "type": "function"
   },
   {

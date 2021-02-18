@@ -17,7 +17,7 @@ def prepare_swap(deployer, adel, akro, vakro, stakingpool, vakroSwap):
 
     stakingpool.setSwapContract(vakroSwap.address, {'from': deployer})
 
-    vakroSwap.setSwapRate(ADEL_AKRO_RATE, {'from': deployer})
+    vakroSwap.setSwapRate(ADEL_AKRO_RATE, 1, {'from': deployer})
     vakroSwap.setStakingPool(stakingpool, {'from': deployer})
     vakroSwap.setRewardStakingPool(stakingpool, {'from': deployer})
 
