@@ -101,6 +101,15 @@ def vakroSwap(deployer, proxy_admin, adel, akro, vakro, AdelVAkroSwap):
 
     yield vakroSwapImplFromProxy
 
+@pytest.fixture(scope="module")
+def testVakroSwap(deployer, proxy_admin, adel, akro, vakro, TestAdelVAkroSwap):
+    vakroSwapImplFromProxy, vakroSwapProxy, vakroSwapImpl = deploy_proxy(deployer, proxy_admin, TestAdelVAkroSwap,
+                                                                         akro.address, adel.address, vakro.address)
+
+    assert vakroSwapProxy.admin.call({"from":proxy_admin.address}) == proxy_admin.address
+    assert vakroSwapProxy.implementation.call({"from":proxy_admin.address}) == vakroSwapImpl.address
+
+    yield vakroSwapImplFromProxy
 
 @pytest.fixture(scope="module")
 def rewardmodule(deployer, pool, proxy_admin, TestRewardVestingModule):
