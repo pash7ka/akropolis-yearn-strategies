@@ -1,3 +1,4 @@
 black==19.10b0
 eth-brownie>=1.13.0,<2.0.0
 python-dotenv==0.15.0
+web3==5.16.0

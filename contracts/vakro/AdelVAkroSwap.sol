@@ -7,6 +7,7 @@ import "@ozUpgradesV3/contracts/token/ERC20/IERC20Upgradeable.sol";
 import "@ozUpgradesV3/contracts/token/ERC20/SafeERC20Upgradeable.sol";
 import "@ozUpgradesV3/contracts/math/SafeMathUpgradeable.sol";
 import "@ozUpgradesV3/contracts/utils/ReentrancyGuardUpgradeable.sol";
+import "@ozUpgradesV3/contracts/cryptography/MerkleProofUpgradeable.sol";
 
 import "../../interfaces/IERC20Burnable.sol";
 import "../../interfaces/IERC20Mintable.sol";
@@ -34,7 +35,7 @@ contract AdelVAkroSwap is OwnableUpgradeable, ReentrancyGuardUpgradeable {
     uint256 public swapRateDenominator = 1; //Akro amount = Adel amount * swapRateNumerator / swapRateDenominator
                                             //1 Adel = swapRateNumerator/swapRateDenominator Akro
 
-    uint256[] public merkleRoots;
+    bytes32[] public merkleRoots;
     mapping (address => uint256[3]) public swappedAdel;
 
     modifier swapEnabled() {
@@ -105,12 +106,12 @@ contract AdelVAkroSwap is OwnableUpgradeable, ReentrancyGuardUpgradeable {
      * @notice Sets the Merkle roots
      * @param _merkleRoots Array of hashes
      */
-    function setMerkleRoots(uint256[] memory _merkleRoots) external onlyOwner {
+    function setMerkleRoots(bytes32[] memory _merkleRoots) external onlyOwner {
         require(_merkleRoots.length > 0, "Incorrect data");
         if (merkleRoots.length > 0) {
             delete merkleRoots;
         }
-        merkleRoots = new uint256[](_merkleRoots.length);
+        merkleRoots = new bytes32[](_merkleRoots.length);
         merkleRoots = _merkleRoots;
     }
 
@@ -136,7 +137,7 @@ contract AdelVAkroSwap is OwnableUpgradeable, ReentrancyGuardUpgradeable {
         uint256 _adelAmount,
         uint256 merkleRootIndex, 
         uint256 adelAllowedToSwap,
-        uint256[] memory merkleProofs
+        bytes32[] memory merkleProofs
     ) 
         external nonReentrant swapEnabled enoughAdel(_adelAmount)
     {
@@ -157,7 +158,7 @@ contract AdelVAkroSwap is OwnableUpgradeable, ReentrancyGuardUpgradeable {
     function swapFromStakedAdel(
         uint256 merkleRootIndex, 
         uint256 adelAllowedToSwap,
-        uint256[] memory merkleProofs
+        bytes32[] memory merkleProofs
     )
         external nonReentrant swapEnabled
     {
@@ -184,7 +185,7 @@ contract AdelVAkroSwap is OwnableUpgradeable, ReentrancyGuardUpgradeable {
     function swapFromRewardAdel(
         uint256 merkleRootIndex, 
         uint256 adelAllowedToSwap,
-        uint256[] memory merkleProofs
+        bytes32[] memory merkleProofs
     ) 
         external nonReentrant swapEnabled
     {
@@ -235,11 +236,14 @@ contract AdelVAkroSwap is OwnableUpgradeable, ReentrancyGuardUpgradeable {
         address _account,
         uint256 _merkleRootIndex,
         uint256 _adelAllowedToSwap,
-        uint256[] memory _merkleProofs) virtual public view returns(bool)
+        bytes32[] memory _merkleProofs) virtual public view returns(bool)
     {
+        require(_merkleProofs.length > 0, "No Merkle proofs");
         require(_merkleRootIndex < merkleRoots.length, "Merkle roots are not set");
 
-        return true;
+
+        bytes32 node = keccak256(abi.encodePacked(_account, _adelAllowedToSwap));
+        return MerkleProofUpgradeable.verify(_merkleProofs, merkleRoots[_merkleRootIndex], node);
     }
 
     /**

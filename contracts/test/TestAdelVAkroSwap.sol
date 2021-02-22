@@ -22,7 +22,7 @@ contract TestAdelVAkroSwap is AdelVAkroSwap {
         address _account,
         uint256 _merkleRootIndex,
         uint256 _adelAllowedToSwap,
-        uint256[] memory _merkleProofs) public override view returns(bool)
+        bytes32[] memory _merkleProofs) public override view returns(bool)
     {
         return true;
     }

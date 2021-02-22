@@ -64,6 +64,8 @@ ERC20Detailed.json
 MinterRole.json
 Roles.json
 ERC20Upgradeable.json
+MerkleProofUpgradeable.json
+
 
 TestADEL.json
 TestRewardVestingModule.json
