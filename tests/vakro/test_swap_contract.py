@@ -98,7 +98,7 @@ def test_swap_staked_adel(chain, deployer, akro, adel, vakro, stakingpool, testV
     chain.mine(1, start + EPOCH_LENGTH)
 
     assert testVakroSwap.adelSwapped(regular_user2) == 0
-    testVakroSwap.swapFromStakedAdel(0, ADEL_MAX_ALLOWED, [], hexify("Some string"), {'from': regular_user2})
+    testVakroSwap.swapFromStakedAdel(0, ADEL_MAX_ALLOWED, [], {'from': regular_user2})
     assert testVakroSwap.adelSwapped(regular_user2) == ADEL_TO_SWAP
     
     adel_balance_after = adel.balanceOf(regular_user2)

@@ -150,13 +150,11 @@ contract AdelVAkroSwap is OwnableUpgradeable, ReentrancyGuardUpgradeable {
      * @param merkleRootIndex Index of a merkle root to be used for calculations
      * @param adelAllowedToSwap Maximum ADEL allowed for a user to swap
      * @param merkleProofs Array of consiquent merkle hashes
-     * @param _data Data for unstaking.
      */
     function swapFromStakedAdel(
         uint256 merkleRootIndex, 
         uint256 adelAllowedToSwap,
-        uint256[] memory merkleProofs,
-        bytes memory _data
+        uint256[] memory merkleProofs
     )
         external nonReentrant swapEnabled
     {
@@ -165,7 +163,7 @@ contract AdelVAkroSwap is OwnableUpgradeable, ReentrancyGuardUpgradeable {
         require(verifyMerkleProofs(_msgSender(), merkleRootIndex, adelAllowedToSwap, merkleProofs), "Merkle proofs not verified");
         
         uint256 adelBefore = IERC20Upgradeable(adel).balanceOf(address(this));
-        uint256 _adelAmount = IStakingPool(stakingPool).withdrawStakeForSwap(_msgSender(), _data);
+        uint256 _adelAmount = IStakingPool(stakingPool).withdrawStakeForSwap(_msgSender(), "0x");
         uint256 adelAfter = IERC20Upgradeable(adel).balanceOf(address(this));
         
         require( adelAfter - adelBefore == _adelAmount, "ADEL was not transferred");
@@ -257,7 +255,7 @@ contract AdelVAkroSwap is OwnableUpgradeable, ReentrancyGuardUpgradeable {
         IERC20Mintable(vakro).mint(address(this), vAkroAmount);
         IERC20Upgradeable(vakro).transfer(_msgSender(), vAkroAmount);
 
-        emit AdelSwapped(_msgSender(), _adelAmount, vAkroAmount);
+        emit AdelSwapped(_msgSender(), actualAdelAmount, vAkroAmount);
 
         if (adelChange > 0)
             IERC20Upgradeable(adel).safeTransfer(_msgSender(), adelChange);

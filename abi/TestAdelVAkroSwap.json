@@ -326,11 +326,6 @@
         "internalType": "uint256[]",
         "name": "merkleProofs",
         "type": "uint256[]"
-      },
-      {
-        "internalType": "bytes",
-        "name": "_data",
-        "type": "bytes"
       }
     ],
     "name": "swapFromStakedAdel",
