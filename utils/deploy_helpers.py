@@ -17,11 +17,11 @@ def deploy_proxy(deployer, proxy_admin, ImplContract, *args):
     cur_project = project.get_loaded_projects()[0]
 
     #Deploy implementation first
-    contract_impl = deployer.deploy(ImplContract, publish_source=True)
+    contract_impl = deployer.deploy(ImplContract)
 
     #Deploy proxy next
     initializer_data = contract_impl.initialize.encode_input(*args)
-    proxy_contract = deployer.deploy(cur_project.UtilProxy, contract_impl.address, proxy_admin, initializer_data, publish_source=True)
+    proxy_contract = deployer.deploy(cur_project.UtilProxy, contract_impl.address, proxy_admin, initializer_data)
 
     #Route all calls to go through the proxy contract
     contract_impl_from_proxy = Contract.from_abi(ImplContract._name, proxy_contract.address, ImplContract.abi)
