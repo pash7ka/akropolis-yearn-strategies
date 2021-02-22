@@ -7,6 +7,7 @@ ADEL_AKRO_RATE = 15
 EPOCH_LENGTH = 100
 REWARDS_AMOUNT = 150
 ADEL_MAX_ALLOWED = 1000
+NULL_ADDRESS = '0x0000000000000000000000000000000000000000'
 
 @pytest.fixture(scope="module")
 def prepare_swap(deployer, adel, akro, vakro, stakingpool, testVakroSwap):
@@ -19,7 +20,7 @@ def prepare_swap(deployer, adel, akro, vakro, stakingpool, testVakroSwap):
 
     testVakroSwap.setSwapRate(ADEL_AKRO_RATE, 1, {'from': deployer})
     testVakroSwap.setStakingPool(stakingpool, {'from': deployer})
-    testVakroSwap.setRewardStakingPool(stakingpool, {'from': deployer})
+    testVakroSwap.setRewardStakingPool(NULL_ADDRESS, stakingpool, {'from': deployer})
 
 def hexify(s):
     return s.encode("utf-8").hex()

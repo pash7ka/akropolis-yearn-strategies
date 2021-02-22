@@ -148,11 +148,10 @@ contract VestedAkro is OwnableUpgradeable, IERC20Upgradeable, MinterRole, Vested
     /**
      * @notice Unlocks all avilable vAKRO for a holder
      * @param holder Whose funds to unlock
-     * @param tillBatch Last batch to process + 1. Usually equal to batches.length
      * @return total unlocked amount awailable for redeem
      */
-    function unlockAvailable(address holder, uint256 tillBatch) public returns(uint256) {
-        require(tillBatch <= holders[holder].batches.length, "VestedAkro: tillBatch too high");
+    function unlockAvailable(address holder) public returns(uint256) {
+        require(holders[holder].batches.length > 0, "VestedAkro: nothing to unlock");
         claimAllFromBatches(holder);
         return holders[holder].unlocked;
     }

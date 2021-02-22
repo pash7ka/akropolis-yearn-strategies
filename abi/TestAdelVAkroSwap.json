@@ -165,7 +165,20 @@
   },
   {
     "inputs": [],
-    "name": "rewardStakingPool",
+    "name": "rewardAdelPool",
+    "outputs": [
+      {
+        "internalType": "address",
+        "name": "",
+        "type": "address"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "rewardAkroPool",
     "outputs": [
       {
         "internalType": "address",
@@ -206,7 +219,12 @@
     "inputs": [
       {
         "internalType": "address",
-        "name": "_rewardStakingPool",
+        "name": "_rewardAkroPool",
+        "type": "address"
+      },
+      {
+        "internalType": "address",
+        "name": "_rewardAdelPool",
         "type": "address"
       }
     ],
