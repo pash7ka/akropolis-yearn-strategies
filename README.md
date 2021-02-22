@@ -85,7 +85,10 @@ or
 brownie run deploy_vault_savingsV1.py --network rinkeby
 ```
 
-
+### Fork Mainnet
+in command line brownie networks add Ethereum mainnet-new host=$YOUR_ARCHIVE_NODE chainid=1, $YOUR_ARCHIVE_NODE = Alchemy NODE, for example
+```bash
+brownie console --network mainnet-fork
 
 
 ## License
