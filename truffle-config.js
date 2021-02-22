@@ -36,6 +36,10 @@ const mochaGasSettings = {
 const mocha = process.env.GAS_REPORTER ? mochaGasSettings : {}
 
 module.exports = {
+
+  plugins: [
+    'truffle-contract-size'
+  ],
   contracts_directory: "./flattened",
   networks: {
     development: {
