@@ -86,10 +86,24 @@ brownie run deploy_vault_savingsV1.py --network rinkeby
 ```
 
 ### Fork Mainnet
-in command line brownie networks add Ethereum mainnet-new host=$YOUR_ARCHIVE_NODE chainid=1, $YOUR_ARCHIVE_NODE = Alchemy NODE, for example
+If you want to work with Alchemy node (instead of slow Infurra node), first of all export host address (for example):
+```bash
+export ALCHEMY_ARCHIVE_NODE=https://eth-mainnet.alchemyapi.io/v2/3MsO_qdMuAz1ILi6KhiNZ-UO6lqq5mtA
+```
+
+Also you need to export Etherscan token in order to be able to fetch the data:
+```bash
+export ETHERSCAN_TOKEN=
+```
+After that add it to the mainnet-fork configuration:
+```bash
+npm run test:add-fork
+```
+
+Now you can run the console with the emulation:
 ```bash
 brownie console --network mainnet-fork
-
+```
 
 ## License
 
