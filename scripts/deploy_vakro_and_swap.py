@@ -33,6 +33,8 @@ def main():
     rinkeby_akro_address = os.getenv("RINKEBY_AKRO")
     rinkeby_adel_address = os.getenv("RINKEBY_ADEL")
     rinkeby_adel_staking_address = os.getenv("RINKEBY_ADEL_STAKING")
+    rinkeby_akro_staking_address = os.getenv("RINKEBY_AKRO_STAKING")
+    rinkeby_vakro_minter = os.getenv("RINKEBY_VAKRO_MINTER")
     rinkeby_vakro_vesting_period = 60 * 60 * 24 * 30 # 1 month
     rinkeby_vakro_start_date = 1613606400 # 18 Feb 2021, 00:00:00 UTC+0
     rinkeby_vakro_cliff = 60 * 60 * 24 #1 day
@@ -66,14 +68,19 @@ def main():
 
         vakroSwapImplFromProxy.setSwapRate(rinkeby_swap_num, rinkeby_swap_denom, {'from': deployer})
         vakroSwapImplFromProxy.setStakingPool(rinkeby_adel_staking_address, {'from': deployer})
-        vakroSwapImplFromProxy.setRewardStakingPool(rinkeby_adel_staking_address, {'from': deployer})
+        vakroSwapImplFromProxy.setRewardStakingPool(rinkeby_akro_staking_address, rinkeby_adel_staking_address, {'from': deployer})
+        
+
+        vakroImplFromProxy.addMinter(vakroSwapImplFromProxy.address, {'from': deployer})
+        vakroImplFromProxy.addSender(vakroSwapImplFromProxy.address, {'from': deployer})
 
         print(f"Settings for Swap:")
         print(f"swap rate: {rinkeby_swap_num / rinkeby_swap_denom}")
 
+        vakroImplFromProxy.addMinter(rinkeby_vakro_minter, {'from': deployer})
+        vakroImplFromProxy.addSender(rinkeby_vakro_minter, {'from': deployer})
 
+        print(f"{rinkeby_vakro_minter} added as minter and sender for vAkro")
 
-        vakroImplFromProxy.addMinter(vakroSwapImplFromProxy.address, {'from': deployer})
-        vakroImplFromProxy.addSender(vakroSwapImplFromProxy.address, {'from': deployer})
 
 

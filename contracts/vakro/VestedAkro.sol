@@ -36,8 +36,6 @@ contract VestedAkro is OwnableUpgradeable, IERC20Upgradeable, MinterRole, Vested
         uint256 firstUnclaimedBatch; // First batch which is not fully claimed
     }
 
-    //uint256 constant VESTING_START = 
-
     string private _name;
     string private _symbol;
     uint8 private _decimals;
