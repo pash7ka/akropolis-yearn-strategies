@@ -61,7 +61,7 @@ def main():
         
         # Deploy Swap contract
         vakroSwapImplFromProxy, vakroSwapProxy, vakroSwapImpl = deploy_proxy(deployer, proxy_admin, AdelVAkroSwap,
-                                                                            rinkeby_akro_address, rinkeby_adel_address, vakroImpl.address)
+                                                                            rinkeby_akro_address, rinkeby_adel_address, vakroImplFromProxy.address)
 
         print(f"Swap proxy deployed at {vakroSwapProxy.address}")
         print(f"Swap implementation deployed at {vakroSwapImpl.address}")
