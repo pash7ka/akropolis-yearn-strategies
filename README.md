@@ -86,21 +86,31 @@ brownie run deploy_vault_savingsV1.py --network rinkeby
 ```
 
 ### Fork Mainnet
-If you want to work with Alchemy node (instead of slow Infurra node), first of all export host address (for example):
+In order to perform mainnet-fork testing in automatic way you should perform next actions:
+
+1) If you want to work with Alchemy node (instead of slow Infurra node), first of all export host address (for example):
 ```bash
 export ALCHEMY_ARCHIVE_NODE=https://eth-mainnet.alchemyapi.io/v2/3MsO_qdMuAz1ILi6KhiNZ-UO6lqq5mtA
 ```
-
-Also you need to export Etherscan token in order to be able to fetch the data:
+2) Infura project ID
 ```bash
-export ETHERSCAN_TOKEN=
+export WEB3_INFURA_PROJECT_ID=<YOUR_PROJECT_ID>
 ```
-After that add it to the mainnet-fork configuration:
+3) Also you need to export Etherscan token in order to be able to fetch the data (to get enough requests attempts):
+```bash
+export ETHERSCAN_TOKEN=<YOUR_ETHER_SCAN_TOKEN>
+```
+4) After that add it to the mainnet-fork configuration:
 ```bash
 npm run test:add-fork
 ```
 
-Now you can run the console with the emulation:
+Now you can run the test:
+```bash
+npm run test:swap-mainnet
+```
+
+Or you can run the console with the free emulation:
 ```bash
 brownie console --network mainnet-fork
 ```

@@ -24,6 +24,7 @@ networks:
       fork: mainnet-test
       unlock:
         - 0x509e16558f1fdc4733efa73846da891a29797e43
+        - 0x4454fc25daf515d1237d0ea76ac3ea931118eef0
       accounts: 10
       default_balance: 100
       gas_limit: 6721975

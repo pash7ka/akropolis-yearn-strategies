@@ -3,7 +3,7 @@ from brownie import accounts
 import sys
 import os
 
-from utils.deploy_helpers import deploy_proxy, deploy_admin
+from utils.deploy_helpers import deploy_proxy, deploy_admin, upgrade_proxy, get_proxy_admin
 
 from dotenv import load_dotenv, find_dotenv
 
@@ -19,7 +19,15 @@ def env_settings():
 
 @pytest.fixture(scope="module")
 def owner(env_settings, accounts):
-    yield accounts.at(os.getenv("MAINNET_OWNER"), force=True)
+    owner_addr = accounts.at(os.getenv("MAINNET_OWNER"), force=True)
+    accounts[0].transfer(owner_addr, '80 ether')
+    yield owner_addr
+
+@pytest.fixture(scope="module")
+def akro_staking_owner(env_settings, accounts):
+    owner_addr = accounts.at(os.getenv("MAINNET_AKRO_STAKING_OWNER"), force=True)
+    accounts[0].transfer(owner_addr, '10 ether')
+    yield owner_addr
 
 @pytest.fixture(scope="module")
 def regular_user(accounts):
@@ -45,7 +53,7 @@ def akro(env_settings, Contract):
 
 @pytest.fixture(scope="module")
 def adel(env_settings, Contract):
-    yield Contract.from_explorer(os.getenv("MAINNET_ADEL"))
+    yield Contract.from_explorer(os.getenv("MAINNET_ADEL_PROXY"), as_proxy_for=os.getenv("MAINNET_ADEL"))
 
 @pytest.fixture(scope="module")
 def vakro(env_settings, owner, akro, VestedAkro):
@@ -53,18 +61,18 @@ def vakro(env_settings, owner, akro, VestedAkro):
 
     vakroImplFromProxy, vakroProxy, vakroImpl = deploy_proxy(owner, proxy_admin, VestedAkro, akro.address, EPOCH_LENGTH)
 
-    assert vakroProxy.admin.call({"from":proxy_admin.address}) == proxy_admin.address
-    assert vakroProxy.implementation.call({"from":proxy_admin.address}) == vakroImpl.address
+    assert vakroProxy.admin.call({"from":proxy_admin}) == proxy_admin
+    assert vakroProxy.implementation.call({"from":proxy_admin}) == vakroImpl.address
 
     yield vakroImplFromProxy
 
 @pytest.fixture(scope="module")
 def adelstakingpool(env_settings, Contract):
-    yield Contract.from_explorer(os.getenv("MAINNET_ADEL_STAKING"), as_proxy_for=os.getenv("MAINNET_ADEL_STAKING"))
+    yield Contract.from_explorer(os.getenv("MAINNET_ADEL_STAKING_PROXY"), as_proxy_for=os.getenv("MAINNET_ADEL_STAKING"))
 
 @pytest.fixture(scope="module")
 def akrostakingpool(env_settings, Contract):
-    yield Contract.from_explorer(os.getenv("MAINNET_AKRO_STAKING"), as_proxy_for=os.getenv("MAINNET_AKRO_STAKING"))
+    yield Contract.from_explorer(os.getenv("MAINNET_AKRO_STAKING_PROXY"), as_proxy_for=os.getenv("MAINNET_AKRO_STAKING"))
 
 
 @pytest.fixture(scope="module")
@@ -73,26 +81,31 @@ def vakroSwap(env_settings, owner, adel, akro, vakro, AdelVAkroSwap):
     vakroSwapImplFromProxy, vakroSwapProxy, vakroSwapImpl = deploy_proxy(owner, proxy_admin, AdelVAkroSwap,
                                                                          akro.address, adel.address, vakro.address)
 
-    assert vakroSwapProxy.admin.call({"from":proxy_admin.address}) == proxy_admin.address
-    assert vakroSwapProxy.implementation.call({"from":proxy_admin.address}) == vakroSwapImpl.address
+    assert vakroSwapProxy.admin.call({"from":proxy_admin}) == proxy_admin
+    assert vakroSwapProxy.implementation.call({"from":proxy_admin}) == vakroSwapImpl.address
 
     yield vakroSwapImplFromProxy
 
 
 @pytest.fixture(scope="module")
-def prepare_swap(owner, adel, akro, vakro, stakingpooladel, stakingpoolakro, vakroSwap):
+def prepare_swap(owner, adel, akro, vakro, adelstakingpool, akrostakingpool, vakroSwap):
     vakro.addMinter(vakroSwap.address, {'from': owner})
     vakro.addSender(vakroSwap.address, {'from': owner})
 
     vakroSwap.setSwapRate(ADEL_AKRO_RATE, 1, {'from': owner})
-    vakroSwap.setStakingPool(stakingpooladel.address, {'from': owner})
-    vakroSwap.setRewardStakingPool(stakingpoolakro.address, stakingpooladel.address, {'from': owner})
+    vakroSwap.setStakingPool(adelstakingpool.address, {'from': owner})
+    vakroSwap.setRewardStakingPool(akrostakingpool.address, adelstakingpool.address, {'from': owner})
 
 
 @pytest.fixture(scope="module")
-def prepare_stakings(owner, stakingpooladel, stakingpoolakro, vakroSwap):
+def prepare_stakings(env_settings, owner, akro_staking_owner, adelstakingpool, akrostakingpool, vakroSwap, StakingPoolADEL):
+
     # Update stakings
+    proxy_admin = get_proxy_admin(os.getenv("MAINNET_PROXY_ADMIN"))
+
+    adelstakingpool, newAdelStakingImpl = upgrade_proxy(owner, proxy_admin, adelstakingpool, StakingPoolADEL)
+    akrostakingpool, newAkroStakingImpl = upgrade_proxy(owner, proxy_admin, akrostakingpool, StakingPoolADEL)
 
     # Set swap address
-    stakingpoolakro.setSwapContract(vakroSwap.address, {'from': owner})
-    stakingpooladel.setSwapContract(vakroSwap.address, {'from': owner})
+    akrostakingpool.setSwapContract(vakroSwap.address, {'from': akro_staking_owner})
+    adelstakingpool.setSwapContract(vakroSwap.address, {'from': owner})
