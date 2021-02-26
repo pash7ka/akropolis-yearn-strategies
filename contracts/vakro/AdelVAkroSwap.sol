@@ -163,15 +163,20 @@ contract AdelVAkroSwap is OwnableUpgradeable, ReentrancyGuardUpgradeable {
         external nonReentrant swapEnabled
     {
         require(stakingPool != address(0), "Swap from stake is disabled");
-        require(IStakingPool(stakingPool).rewardBalanceOf(_msgSender(), adel) == 0, "Withdraw rewards first");
 
         require(verifyMerkleProofs(_msgSender(), merkleRootIndex, adelAllowedToSwap, merkleProofs), "Merkle proofs not verified");
         
         uint256 adelBefore = IERC20Upgradeable(adel).balanceOf(address(this));
-        uint256 _adelAmount = IStakingPool(stakingPool).withdrawStakeForSwap(_msgSender(), "0x");
+        uint256 akroBefore = IERC20Upgradeable(akro).balanceOf(address(this));
+        uint256 _adelAmount = IStakingPool(stakingPool).withdrawStakeForSwap(_msgSender(), adel, "0x");
         uint256 adelAfter = IERC20Upgradeable(adel).balanceOf(address(this));
+        uint256 akroAfter = IERC20Upgradeable(akro).balanceOf(address(this));
         
         require( adelAfter - adelBefore == _adelAmount, "ADEL was not transferred");
+
+        if (akroAfter - akroBefore > 0) {
+            IERC20Upgradeable(akro).safeTransfer(_msgSender(), akroAfter - akroBefore);
+        }
                 
         swap(_adelAmount, adelAllowedToSwap, AdelSource.STAKE);
     }

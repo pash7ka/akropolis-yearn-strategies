@@ -50,28 +50,38 @@ coverage.json
 # MacOS junk
 .DS_Store
 
-# Standard contracts
+# Standard and test contracts
 AddressUpgradeable.json
+Base.json
+CapperRole.json
+Context.json
 ContextUpgradeable.json
+ERC20.json
+ERC20Detailed.json
+ERC20Upgradeable.json
+IERC20.json
 IERC20Upgradeable.json
+IERC20Mintable.json
 Initializable.json
+MerkleProofUpgradeable.json
+Module.json
+ModuleNames.json
+Ownable.json
 OwnableUpgradeable.json
 PausableUpgradeable.json
 ReentrancyGuardUpgradeable.json
-SafeERC20Upgradeable.json
-SafeMathUpgradeable.json
-ERC20Detailed.json
-MinterRole.json
+RewardManagerRole.json
+RewardVestingModule.json
 Roles.json
-ERC20Upgradeable.json
-MerkleProofUpgradeable.json
-
-
+SafeERC20.json
+SafeERC20Upgradeable.json
+SafeMath.json
+SafeMathUpgradeable.json
 TestADEL.json
-TestRewardVestingModule.json
-TestStakingPool.json
-TestStakingPoolBase.json
 TestERC20.json
-
+TestRegistryV2.json
+TestRewardVestingModule.json
+TestStakingPoolBase.json
+TestStakingPool.json
 UpgradeTestNew.json
 UpgradeTestOld.json

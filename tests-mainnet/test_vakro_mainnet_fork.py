@@ -194,27 +194,16 @@ def test_swap_adel_2(akro, adel, vakro, vakroSwap, adelstakingpool, akrostakingp
     ###
     # Can swap from the stake
     ###
+    user_akro_balance_before = akro.balanceOf(user_for_stake)
+    user_rewards_in_akro = adelstakingpool.rewardBalanceOf(user_for_stake, akro.address)
     user_adel_balance_before = adel.balanceOf(user_for_stake)
     swap_adel_balance_before = adel.balanceOf(vakroSwap.address)
     user_adel_staked_before = adelstakingpool.getPersonalStakeTotalAmount(user_for_stake)
-    user_adel_rewards_before = adelstakingpool.rewardBalanceOf(user_for_stake, adel.address) + akrostakingpool.rewardBalanceOf(user_for_stake, adel.address)
+    user_adel_rewards_before = adelstakingpool.rewardBalanceOf(user_for_stake, adel.address)
     total_staked_before = adelstakingpool.totalStaked()
 
     assert vakroSwap.adelSwapped(user_for_stake) == 0
     assert vakro.balanceOf(user_for_stake) == 0
-
-    with brownie.reverts():
-        vakroSwap.swapFromStakedAdel(
-            proofs_dict[user_for_stake]['rootIndex'],
-            proofs_dict[user_for_stake]['maxAmount'],
-            proofs_dict[user_for_stake]['proofs'],
-                {'from': user_for_stake})
-
-    vakroSwap.swapFromRewardAdel(
-        proofs_dict[user_for_stake]['rootIndex'],
-        proofs_dict[user_for_stake]['maxAmount'],
-        proofs_dict[user_for_stake]['proofs'],
-            {'from': user_for_stake})
 
     vakroSwap.swapFromStakedAdel(
         proofs_dict[user_for_stake]['rootIndex'],
@@ -223,29 +212,34 @@ def test_swap_adel_2(akro, adel, vakro, vakroSwap, adelstakingpool, akrostakingp
             {'from': user_for_stake})
 
     global total_adel_swapped
-    total_adel_swapped += proofs_dict[user_for_stake]['amount_stake'] + proofs_dict[user_for_stake]['amount_rewards']
+    total_adel_swapped += (proofs_dict[user_for_stake]['amount_stake'] + proofs_dict[user_for_stake]['amount_rewards_from_adel'])
     global total_stake_withdrawn
     total_stake_withdrawn += proofs_dict[user_for_stake]['amount_stake']
     global total_rewards_from_adel
     total_rewards_from_adel += proofs_dict[user_for_stake]['amount_rewards_from_adel']
-    global total_rewards_from_akro
-    total_rewards_from_akro += proofs_dict[user_for_stake]['amount_rewards_from_akro']
 
+    user_akro_balance_after = akro.balanceOf(user_for_stake)
     user_adel_balance_after = adel.balanceOf(user_for_stake)
     swap_adel_balance_after = adel.balanceOf(vakroSwap.address)
     user_adel_staked_after = adelstakingpool.getPersonalStakeTotalAmount(user_for_stake)
-    user_adel_rewards_after = adelstakingpool.rewardBalanceOf(user_for_stake, adel.address) + akrostakingpool.rewardBalanceOf(user_for_stake, adel.address)
+    user_adel_rewards_after = adelstakingpool.rewardBalanceOf(user_for_stake, adel.address)
     total_staked_after = adelstakingpool.totalStaked()
 
+    #AKRO has been sent to the user, protocols balance is unchanged
+    assert user_akro_balance_after - user_akro_balance_before == user_rewards_in_akro
+    assert adelstakingpool.rewardBalanceOf(user_for_stake, akro.address) == 0
+    # Nothing left on the swap contract
+    assert akro.balanceOf(vakroSwap.address) == 0
+
     assert user_adel_balance_before == user_adel_balance_after
-    assert swap_adel_balance_after - swap_adel_balance_before == proofs_dict[user_for_stake]['amount_stake'] + proofs_dict[user_for_stake]['amount_rewards']
+    assert swap_adel_balance_after - swap_adel_balance_before == proofs_dict[user_for_stake]['amount_stake'] + proofs_dict[user_for_stake]['amount_rewards_from_adel']
 
     assert total_staked_before - total_staked_after == proofs_dict[user_for_stake]['amount_stake']
     assert user_adel_staked_after == 0
     assert user_adel_rewards_after == 0
 
-    assert vakro.balanceOf(user_for_stake) == ADEL_AKRO_RATE * (proofs_dict[user_for_stake]['amount_stake'] + proofs_dict[user_for_stake]['amount_rewards'])
-    assert vakroSwap.adelSwapped(user_for_stake) == proofs_dict[user_for_stake]['amount_stake'] + proofs_dict[user_for_stake]['amount_rewards']
+    assert vakro.balanceOf(user_for_stake) == ADEL_AKRO_RATE * (proofs_dict[user_for_stake]['amount_stake'] + proofs_dict[user_for_stake]['amount_rewards_from_adel'])
+    assert vakroSwap.adelSwapped(user_for_stake) == proofs_dict[user_for_stake]['amount_stake'] + proofs_dict[user_for_stake]['amount_rewards_from_adel']
 
 def test_swap_adel_3(akro, adel, vakro, vakroSwap, adelstakingpool, akrostakingpool):
     proofs_dict = users_proofs()
