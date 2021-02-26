@@ -25,6 +25,12 @@ networks:
       unlock:
         - 0x509e16558f1fdc4733efa73846da891a29797e43
         - 0x4454fc25daf515d1237d0ea76ac3ea931118eef0
+        - 0xc97ad401c75e6bfb5694899cd3271485d27c6ea4
+        - 0xf47f63cbb47b75967b29f4749959507db43b1038
+        - 0xb1f9a358003ae5145805e936db3af3c22368e324
+        - 0xa215f1b06e7945d331f2df30961027123947a40d
+        - 0x8efd9addd8de6a4e64664d1893dec51f8c3339e9
+        - 0xeb1a799769fc69e84440f9d162d12b196e6e369c
       accounts: 10
       default_balance: 100
       gas_limit: 6721975

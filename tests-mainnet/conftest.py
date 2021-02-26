@@ -48,7 +48,7 @@ def regular_user4(accounts):
 
 @pytest.fixture(scope="module")
 def akro(env_settings, Contract):
-    yield Contract.from_explorer(os.getenv("MAINNET_AKRO"))
+    yield Contract.from_explorer(os.getenv("MAINNET_AKRO_PROXY"), as_proxy_for=os.getenv("MAINNET_AKRO"))
 
 
 @pytest.fixture(scope="module")

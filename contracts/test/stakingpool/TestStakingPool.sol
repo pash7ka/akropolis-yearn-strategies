@@ -208,7 +208,9 @@ contract TestStakingPool is TestStakingPoolBase {
 
         uint256 rwrds = rewardBalanceOf(_user, _token);
 
-        require(rwrds > 0, "No rewards to swap");
+        if (rwrds == 0) {
+            return 0;
+        }
 
         uri.nextDistribution[_token] = rd.distributions.length;
 

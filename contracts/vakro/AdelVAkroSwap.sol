@@ -163,6 +163,7 @@ contract AdelVAkroSwap is OwnableUpgradeable, ReentrancyGuardUpgradeable {
         external nonReentrant swapEnabled
     {
         require(stakingPool != address(0), "Swap from stake is disabled");
+        require(IStakingPool(stakingPool).rewardBalanceOf(_msgSender(), adel) == 0, "Withdraw rewards first");
 
         require(verifyMerkleProofs(_msgSender(), merkleRootIndex, adelAllowedToSwap, merkleProofs), "Merkle proofs not verified");
         
