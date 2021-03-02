@@ -124,7 +124,7 @@ rewards_on_akro_before = 0
 
 total_adel_change = 0
 
-def test_initial_balances(chain, owner, adel, vakro, vakroSwap, adelstakingpool, akrostakingpool, prepare_swap, prepare_stakings):
+def test_initial_balances(chain, owner, adel, vakro, vakroSwap, adelstakingpool, akrostakingpool):
     global staking_adel_before
     staking_adel_before = adelstakingpool.totalStaked()
     global rewards_on_adel_before
@@ -134,7 +134,6 @@ def test_initial_balances(chain, owner, adel, vakro, vakroSwap, adelstakingpool,
 
     # Prepare vAkro and swap
     vakroSwap.setMerkleRoots(merkle_roots(), {'from': owner})
-    vakro.setVestingCliff(0, {'from': owner})
     start = chain.time() + 1000
     vakro.setVestingStart(start, {'from': owner})
     chain.mine(1)
