@@ -13,6 +13,12 @@ networks:
       gas_limit: 6721975
       accounts: 500
 
+  mainnet:
+    gas_limit: 3000000
+    gas_price: 86000000000
+    cmd_settings:
+      gas_limit: 3000000
+
   # in command line brownie networks add Ethereum mainnet-new host=$YOUR_ARCHIVE_NODE chainid=1, $YOUR_ARCHIVE_NODE = Alchemy NODE.
   # brownie console --network mainnet-fork
   
