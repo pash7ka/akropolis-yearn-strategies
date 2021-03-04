@@ -28,6 +28,32 @@ def deploy_proxy(deployer, proxy_admin, ImplContract, *args):
 
     return contract_impl_from_proxy, proxy_contract, contract_impl
 
+def deploy_proxy_over_impl(deployer, proxy_admin, implementation_address, ImplContract, *args):
+    """
+    @dev
+        Deploys upgradable contract with proxy from oz-contracts package
+    @param deployer Brownie account used to deploy a contract.
+    @param proxy_admin Admin address (e.g. from the contract deployed deploy_admin() or custom admin).
+    @param implementation_address Implementation which will be set in the proxy.
+    @param ImplContract Brownie Contract container for the implementation.
+    @param args Initializer arguments.
+    @return Contract container for the proxy wrapped into the implementation interface
+            Contract container for the proxy
+            Contract container for the implementation
+    """
+    cur_project = project.get_loaded_projects()[0]
+
+    #Already have the implementation
+    contract_impl = deployer.deploy(ImplContract)
+
+    #Deploy proxy next
+    initializer_data = contract_impl.initialize.encode_input(*args)
+    proxy_contract = deployer.deploy(cur_project.UtilProxy, implementation_address, proxy_admin, initializer_data)
+
+    #Route all calls to go through the proxy contract
+    contract_impl_from_proxy = Contract.from_abi(ImplContract._name, proxy_contract.address, ImplContract.abi)
+
+    return contract_impl_from_proxy, proxy_contract
 
 def deploy_admin(deployer):
     """

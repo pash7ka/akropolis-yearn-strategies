@@ -22,19 +22,22 @@
         "sec:flatten-echidna": "sh ./security/flattener-run.sh echidna",
         "sec:load-echidna": "sh ./security/echidna/echidna-download.sh",
         "sec:echidna": "sh ./security/echidna/echidna-run.sh",
-        "test": "brownie test"
+        "test": "brownie test",
+        "test:add-fork": "brownie networks add Ethereum mainnet-test host=$ALCHEMY_ARCHIVE_NODE chainid=1 explorer=https://api.etherscan.io/api",
+        "test:swap-mainnet": "brownie test tests-mainnet/test_vakro_mainnet_fork.py --network mainnet-fork"
     },
     "dependencies": {
         "@openzeppelin/cli": "^2.8.2",
         "dotenv": "^8.2.0",
         "solc": "^0.6.12",
-        "truffle-assertions": "^0.9.2"
+        "truffle-assertions": "^0.9.2",
+        "truffle-contract-size": "^2.0.1"
     },
     "devDependencies": {
         "@openzeppelin/contracts": "^3.3.0",
         "@openzeppelin/contracts-upgradeable": "^3.3.0",
         "@truffle/hdwallet-provider": "^1.0.38",
-        "ganache-cli": "^6.10.2",
+        "ganache-cli": "^6.12.2",
         "truffle": "^5.1.34"
     }
 }
