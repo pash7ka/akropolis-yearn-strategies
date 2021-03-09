@@ -117,4 +117,4 @@ brownie console --network mainnet-fork
 
 ## License
 
-Copyright (c) 2020 Akropolis, AGPL V3.0
+Copyright (c) 2020 A Labs Ltd., AGPL V3.0
